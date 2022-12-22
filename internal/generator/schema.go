@@ -1,0 +1,250 @@
+package generator
+
+import (
+	"encoding/json"
+	"fmt"
+	"path"
+	"strings"
+
+	"github.com/getkin/kin-openapi/openapi3"
+	oapiv1 "github.com/technicallyjosh/protoc-gen-openapi/api/oapi/v1"
+	"github.com/technicallyjosh/protoc-gen-openapi/internal/generator/util"
+	"google.golang.org/protobuf/compiler/protogen"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/reflect/protoreflect"
+	"google.golang.org/protobuf/types/descriptorpb"
+)
+
+// addSchemasToDoc adds all non "request" and "response" messages as schemas to the OAPI doc.
+func (g *Generator) addSchemasToDoc(doc *openapi3.T, messages []*protogen.Message) error {
+	for _, message := range messages {
+		messageName := util.FullName(message)
+
+		if util.IsRequestMessage(message) || util.IsResponseMessage(message) {
+			continue
+		}
+
+		messageSchemaRef := &openapi3.SchemaRef{
+			Value: &openapi3.Schema{
+				Properties: make(openapi3.Schemas),
+			},
+		}
+
+		err := g.buildSchema(doc, message, messageSchemaRef)
+		if err != nil {
+			return err
+		}
+
+		addSchema(doc, messageName, messageSchemaRef)
+	}
+
+	return nil
+}
+
+// buildSchema takes a message and recursively builds out an OAPI schema.
+func (g *Generator) buildSchema(doc *openapi3.T, message *protogen.Message, parent *openapi3.SchemaRef) error {
+	if parent.Value.Required == nil {
+		parent.Value.Required = make([]string, 0)
+	}
+
+	for _, field := range message.Fields {
+		// Use the JSON name if defined.
+		var fieldName string
+
+		if *g.config.UseJSONNames {
+			fieldName = field.Desc.JSONName()
+		} else {
+			fieldName = string(field.Desc.Name())
+		}
+
+		fieldSchemaRef := &openapi3.SchemaRef{
+			Value: newFieldSchema(field.Desc),
+		}
+		parsed := g.parseComments(field.Comments.Leading)
+		fieldSchemaRef.Value.Description = parsed.Description
+
+		// Try to set deprecated
+		if fieldOptions, ok := field.Desc.Options().(*descriptorpb.FieldOptions); ok {
+			fieldSchemaRef.Value.Deprecated = fieldOptions.GetDeprecated()
+		}
+
+		// Check for and apply required option.
+		extRequired := proto.GetExtension(field.Desc.Options(), oapiv1.E_Required)
+		if extRequired != nil && extRequired.(bool) {
+			parent.Value.Required = append(parent.Value.Required, fieldName)
+		}
+
+		// Apply example
+		if parsed.Example != "" {
+			var example any
+			exampleBytes := []byte(parsed.Example)
+
+			if json.Valid(exampleBytes) {
+				if err := json.Unmarshal(exampleBytes, &example); err != nil {
+					return err
+				}
+			} else {
+				example = parsed.Example
+			}
+
+			fieldSchemaRef.Value.Example = example
+		}
+
+		// TODO: Figure out how to merge the following 2 logical pieces together so most of it isn't
+		// duplicated.
+		if fieldSchemaRef.Value.Type == openapi3.TypeObject {
+			fieldMessageName := util.FullName(field.Message)
+
+			var isChild bool
+			// Here we look for child messages first in case the name is the same as a top level
+			// name.
+			for _, childMessage := range message.Messages {
+				if field.Message.Desc.FullName() == childMessage.Desc.FullName() {
+					isChild = true
+					err := g.buildSchema(doc, childMessage, fieldSchemaRef)
+					if err != nil {
+						return err
+					}
+				}
+			}
+
+			if !isChild {
+				// If it's not a child message, it should exist in schemas, and we can then just do
+				// a ref...
+				if schemaExists(doc, fieldMessageName) {
+					fieldSchemaRef.Ref = newSchemaRef(fieldMessageName)
+				} else {
+					// If it doesn't exist in schemas, then it's referenced elsewhere. We'll try to
+					// snag it from our message map.
+					msg := allMessages.Get(fieldMessageName)
+					if msg != nil {
+						// Use the message to build it out inline instead of using a ref.
+						err := g.buildSchema(doc, msg, fieldSchemaRef)
+						if err != nil {
+							return err
+						}
+					} else {
+						return fmt.Errorf("'%s' references '%s' but it seems to be missing", field.Desc.FullName(), fieldMessageName)
+					}
+				}
+			}
+		}
+
+		if fieldSchemaRef.Value.Type == openapi3.TypeArray && fieldSchemaRef.Value.Items.Value.Type == "object" {
+			// Array of objects to build out
+			fieldMessageName := util.FullName(field.Message)
+
+			var isChild bool
+			for _, childMessage := range message.Messages {
+				if field.Message.Desc.FullName() == childMessage.Desc.FullName() {
+					isChild = true
+					err := g.buildSchema(doc, childMessage, fieldSchemaRef.Value.Items)
+					if err != nil {
+						return err
+					}
+				}
+			}
+
+			if !isChild {
+				// If it's not a child message, it should exist in schemas, and we can then just do
+				// a ref...
+				if schemaExists(doc, fieldMessageName) {
+					fieldSchemaRef.Ref = newSchemaRef(fieldMessageName)
+				} else {
+					// If it doesn't exist in schemas, then it's referenced elsewhere. We'll try to
+					// snag it from our message map.
+					msg := allMessages.Get(fieldMessageName)
+					if msg != nil {
+						// Use the message to build it out inline instead of using a ref.
+						err := g.buildSchema(doc, msg, fieldSchemaRef)
+						if err != nil {
+							return err
+						}
+					} else {
+						return fmt.Errorf("'%s' references '%s' but it seems to be missing", field.Desc.FullName(), fieldMessageName)
+					}
+				}
+			}
+		}
+
+		parent.Value.Properties[fieldName] = fieldSchemaRef
+	}
+
+	return nil
+}
+
+// addSchema adds the specified schema to the OAPI doc.
+func addSchema(doc *openapi3.T, key string, value *openapi3.SchemaRef) {
+	doc.Components.Schemas[key] = value
+}
+
+// schemaExists returns whether a schema exists or not on the doc.
+func schemaExists(doc *openapi3.T, name string) bool {
+	_, ok := doc.Components.Schemas[name]
+	return ok
+}
+
+// newArraySchema returns a new schema for an array of the specified kind.
+func newArraySchema(kind protoreflect.Kind) *openapi3.Schema {
+	return &openapi3.Schema{
+		Type:       openapi3.TypeArray,
+		Properties: make(openapi3.Schemas),
+		Items: &openapi3.SchemaRef{
+			Value: &openapi3.Schema{
+				Type:       protoKindToAPIType(kind),
+				Properties: make(openapi3.Schemas),
+			},
+		},
+	}
+}
+
+// newSchemaRef returns a convenient schema reference.
+func newSchemaRef(name string) string {
+	return "#/components/schemas/" + name
+}
+
+// newFieldSchema returns a new OAPI represented schema for protobuf types on fields.
+func newFieldSchema(field protoreflect.FieldDescriptor) *openapi3.Schema {
+	kind := field.Kind()
+	schema := &openapi3.Schema{
+		Type:       protoKindToAPIType(field.Kind()),
+		Properties: make(openapi3.Schemas),
+	}
+
+	if field.IsList() {
+		schema.Type = openapi3.TypeArray
+		return newArraySchema(kind)
+	}
+
+	return schema
+}
+
+// protoKindToAPIType returns an OAPI type based on the proto kind sent.
+func protoKindToAPIType(kind protoreflect.Kind) string {
+	switch kind {
+	case protoreflect.StringKind:
+		return openapi3.TypeString
+	case protoreflect.Int32Kind, protoreflect.Int64Kind,
+		protoreflect.Uint32Kind, protoreflect.Uint64Kind,
+		protoreflect.Sint32Kind, protoreflect.Sint64Kind:
+		return openapi3.TypeInteger
+	case protoreflect.BoolKind:
+		return openapi3.TypeBoolean
+	case protoreflect.MessageKind:
+		return openapi3.TypeObject
+	default:
+		return openapi3.TypeNumber
+	}
+}
+
+// getPackageSchema returns the full schema reference from an entity name.
+func (g *Generator) getPackageSchema(pkg, name string) string {
+	prefix := "#/components/schemas"
+	for _, pack := range g.packages {
+		if strings.HasPrefix(name, pack) {
+			return prefix + "." + name
+		}
+	}
+
+	return path.Join(prefix, pkg+"."+name)
+}

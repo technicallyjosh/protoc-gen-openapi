@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package oapi.v1;
+
+import "google/protobuf/descriptor.proto";
+
+option go_package = "github.com/technicallyjosh/protoc-gen-openapi/api/oapi/v1;oapiv1";
+
+extend google.protobuf.FieldOptions {
+  // Marks the field as required.
+  bool required = 5150;
+
+  // Value for the example on the field. This overrides any examples in
+  // comments.
+  string example = 5151;
+}

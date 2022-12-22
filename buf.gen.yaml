@@ -1,0 +1,9 @@
+version: v1
+managed:
+  enabled: true
+
+plugins:
+  - name: go
+    out: api
+    opt:
+      - paths=source_relative

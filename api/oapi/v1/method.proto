@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package oapi.v1;
+
+import "google/protobuf/descriptor.proto";
+
+option go_package = "github.com/technicallyjosh/protoc-gen-openapi/api/oapi/v1;oapiv1";
+
+extend google.protobuf.MethodOptions {
+  MethodOptions method = 5150;
+}
+
+message MethodOptions {
+  // The value of the method defined is the name to be appended or full path.
+  oneof method {
+    // HTTP GET
+    string get = 1;
+
+    // HTTP PUT
+    string put = 2;
+
+    // HTTP POST
+    string post = 3;
+
+    // HTTP DELETE
+    string delete = 4;
+
+    // HTTP PATCH
+    string patch = 5;
+  }
+
+  // The host to use for the current method. This overrides any higher defined default_host value.
+  string host = 6;
+
+  // Specified content type for the method.
+  string content_type = 7;
+
+  // The successful status code for the method. Default is 200.
+  int32 status = 8;
+
+  // Name of the default response protobuf message to use.
+  string default_response = 9;
+
+  // Mark the route as deprecated.
+  bool deprecated = 10;
+
+  // Summary for the method. Generally a friendly alternative name.
+  string summary = 11;
+}

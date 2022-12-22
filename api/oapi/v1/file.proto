@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package oapi.v1;
+
+import "google/protobuf/descriptor.proto";
+
+option go_package = "github.com/technicallyjosh/protoc-gen-openapi/api/oapi/v1;oapiv1";
+
+extend google.protobuf.FileOptions {
+  FileOptions file = 5150;
+}
+
+message FileOptions {
+  // The default host for all services and methods defined in a file. This can
+  // be overridden by the service or a method definition.
+  string host = 1;
+
+  // The default prefix for all services and methods in a file. This can be
+  // overridden by the service or a method definition.
+  string prefix = 2;
+}
