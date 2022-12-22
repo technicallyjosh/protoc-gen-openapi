@@ -111,7 +111,7 @@ message CreateSomethingResponse {
 
 ## Features
 
-> **Note:**
+> **Note**
 >
 > Defining features is a work in progress. I aim to explain all that's possible
 > the best I can.
