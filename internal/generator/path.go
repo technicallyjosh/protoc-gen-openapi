@@ -210,12 +210,13 @@ func (g *Generator) addPathsToDoc(doc *openapi3.T, services []*protogen.Service)
 				methodOptions.Status = http.StatusOK
 			}
 
-			inputFullName := string(method.Input.Desc.FullName())
-			outputFullName := string(method.Output.Desc.FullName())
-
 			requestContent := openapi3.Content{
 				contentType: &openapi3.MediaType{
-					Schema: &openapi3.SchemaRef{},
+					Schema: &openapi3.SchemaRef{
+						Value: &openapi3.Schema{
+							Properties: make(openapi3.Schemas),
+						},
+					},
 				},
 			}
 
@@ -226,9 +227,13 @@ func (g *Generator) addPathsToDoc(doc *openapi3.T, services []*protogen.Service)
 			}
 
 			if methodName != http.MethodGet {
-				if inputFullName != "google.protobuf.Empty" {
-					message := allMessages.Get(inputFullName)
+				inputFullName := string(method.Input.Desc.FullName())
+				message := allMessages.Get(inputFullName)
 
+				// If another type is defined such as google.protobuf.Any, for now we'll just
+				// exit.
+				// TODO: support `Any` type for requests 🤔
+				if message != nil {
 					requestSchemaRef := &openapi3.SchemaRef{
 						Value: &openapi3.Schema{
 							Properties: make(openapi3.Schemas),
@@ -240,9 +245,16 @@ func (g *Generator) addPathsToDoc(doc *openapi3.T, services []*protogen.Service)
 						return err
 					}
 					requestContent.Get(contentType).Schema = requestSchemaRef
+
+					op.RequestBody = &openapi3.RequestBodyRef{
+						Value: &openapi3.RequestBody{
+							Content: requestContent,
+						},
+					}
 				}
 			}
 
+			outputFullName := string(method.Output.Desc.FullName())
 			message := allMessages.Get(outputFullName)
 			responseSchema := &openapi3.Schema{
 				Properties: make(openapi3.Schemas),
@@ -252,12 +264,6 @@ func (g *Generator) addPathsToDoc(doc *openapi3.T, services []*protogen.Service)
 				return err
 			}
 			responseContent.Get(contentType).Schema = responseSchema.NewRef()
-
-			op.RequestBody = &openapi3.RequestBodyRef{
-				Value: &openapi3.RequestBody{
-					Content: requestContent,
-				},
-			}
 
 			responseCode := fmt.Sprintf("%d", methodOptions.Status)
 			var responseDescription string
