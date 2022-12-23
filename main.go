@@ -11,14 +11,15 @@ func main() {
 	var flags flag.FlagSet
 
 	conf := generator.Config{
-		Version:         flags.String("version", "0.0.1", "Version of the API."),
-		Title:           flags.String("title", "", "Title of the API"),
-		Description:     flags.String("description", "", "Description of the API."),
-		Ignore:          flags.String("ignore", "", "Packages to ignore."),
-		DefaultResponse: flags.String("default_response", "", "Default response message to use for API responses not defined."),
 		ContentType:     flags.String("content_type", "application/json", "Default content-type for all paths."),
-		UseJSONNames:    flags.Bool("json_names", false, "Use JSON names instead of the proto names of fields."),
+		DefaultResponse: flags.String("default_response", "", "Default response message to use for API responses not defined."),
+		Description:     flags.String("description", "", "Description of the API."),
+		Host:            flags.String("host", "", "Host to be used for all routes."),
+		Ignore:          flags.String("ignore", "", "Packages to ignore."),
 		JSONOutput:      flags.Bool("json_out", false, "Generate a JSON file instead of YAML."),
+		Title:           flags.String("title", "", "Title of the API"),
+		UseJSONNames:    flags.Bool("json_names", false, "Use JSON names instead of the proto names of fields."),
+		Version:         flags.String("version", "0.0.1", "Version of the API."),
 	}
 
 	opts := protogen.Options{

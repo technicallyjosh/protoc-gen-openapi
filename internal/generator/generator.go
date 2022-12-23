@@ -13,14 +13,15 @@ import (
 
 // Config holds the configuration for the generator.
 type Config struct {
-	Version         *string
-	Title           *string
-	Description     *string
-	Ignore          *string
-	DefaultResponse *string
 	ContentType     *string
-	UseJSONNames    *bool
+	DefaultResponse *string
+	Description     *string
+	Host            *string
+	Ignore          *string
 	JSONOutput      *bool
+	Title           *string
+	UseJSONNames    *bool
+	Version         *string
 }
 
 // Generator is an instance that parses the given folder and its Protobuf files into OAPI.

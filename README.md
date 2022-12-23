@@ -35,8 +35,9 @@ go install github.com/technicallyjosh/protoc-gen-openapi@latest
 | `content_type`     | The content type to be associated with all operations.<sup>1</sup>                | application/json |
 | `json_names`       | Use the JSON names that Protobuf provides. Otherwise, proto field names are used. | false            |
 | `json_out`         | Create a JSON file instead of the default YAML.                                   | false            |
+| `host`             | The host to be used for all operations.<sup>1</sup>                               |                  |
 
-<sup>1</sup> _Can be overridden on a service or method._
+<sup>1</sup> _Can be overridden on a file, service, or method._
 
 ## Using Buf
 

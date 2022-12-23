@@ -36,9 +36,13 @@ func newServer(host string) (*openapi3.Server, error) {
 func (g *Generator) addPathsToDoc(doc *openapi3.T, services []*protogen.Service) error {
 	contentType := *g.config.ContentType
 
-	for _, service := range services {
-		var host, pathPrefix string
+	// Default to config defined host.
+	host := *g.config.Host
 
+	for _, service := range services {
+		var pathPrefix string
+
+		// Apply/Override file options.
 		extFile := proto.GetExtension(service.Desc.ParentFile().Options(), oapiv1.E_File)
 		if extFile != nil && extFile != oapiv1.E_File.InterfaceOf(oapiv1.E_File.Zero()) {
 			fileOptions := extFile.(*oapiv1.FileOptions)
@@ -51,6 +55,7 @@ func (g *Generator) addPathsToDoc(doc *openapi3.T, services []*protogen.Service)
 
 		serviceOptions := new(oapiv1.ServiceOptions)
 
+		// Service options.
 		extService := proto.GetExtension(service.Desc.Options(), oapiv1.E_Service)
 		if extService != nil && extService != oapiv1.E_Service.InterfaceOf(oapiv1.E_Service.Zero()) {
 			serviceOptions = extService.(*oapiv1.ServiceOptions)
@@ -91,6 +96,7 @@ func (g *Generator) addPathsToDoc(doc *openapi3.T, services []*protogen.Service)
 
 			var methodOptions *oapiv1.MethodOptions
 
+			// Method options. If not present, continue to next.
 			extMethod := proto.GetExtension(method.Desc.Options(), oapiv1.E_Method)
 			if extMethod != nil && extMethod != oapiv1.E_Method.InterfaceOf(oapiv1.E_Method.Zero()) {
 				methodOptions = extMethod.(*oapiv1.MethodOptions)
