@@ -148,6 +148,10 @@ service MyService {
 }
 ```
 
+## Features In Progress
+- Path Parameters and Query
+- Field requirements (e.g. `>` `<` etc...)
+
 ## Contributing
 
 Coming... Right now I prefer that it's just me until I get a solid hold on
