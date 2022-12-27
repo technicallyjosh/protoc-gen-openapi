@@ -41,6 +41,16 @@ func (g *Generator) addSchemasToDoc(doc *openapi3.T, messages []*protogen.Messag
 	return nil
 }
 
+// getFieldName returns the raw field name or the JSON defined one if the config is set to use JSON
+// names.
+func (g *Generator) getFieldName(field *protogen.Field) string {
+	if *g.config.UseJSONNames {
+		return field.Desc.JSONName()
+	}
+
+	return string(field.Desc.Name())
+}
+
 // buildSchema takes a message and recursively builds out an OAPI schema.
 func (g *Generator) buildSchema(doc *openapi3.T, message *protogen.Message, parent *openapi3.SchemaRef) error {
 	if parent.Value.Required == nil {
@@ -49,13 +59,7 @@ func (g *Generator) buildSchema(doc *openapi3.T, message *protogen.Message, pare
 
 	for _, field := range message.Fields {
 		// Use the JSON name if defined.
-		var fieldName string
-
-		if *g.config.UseJSONNames {
-			fieldName = field.Desc.JSONName()
-		} else {
-			fieldName = string(field.Desc.Name())
-		}
+		fieldName := g.getFieldName(field)
 
 		fieldSchemaRef := &openapi3.SchemaRef{
 			Value: newFieldSchema(field.Desc),
@@ -63,18 +67,7 @@ func (g *Generator) buildSchema(doc *openapi3.T, message *protogen.Message, pare
 		parsed := g.parseComments(field.Comments.Leading)
 		fieldSchemaRef.Value.Description = parsed.Description
 
-		// Try to set deprecated
-		if fieldOptions, ok := field.Desc.Options().(*descriptorpb.FieldOptions); ok {
-			fieldSchemaRef.Value.Deprecated = fieldOptions.GetDeprecated()
-		}
-
-		// Check for and apply required option.
-		extRequired := proto.GetExtension(field.Desc.Options(), oapiv1.E_Required)
-		if extRequired != nil && extRequired.(bool) {
-			parent.Value.Required = append(parent.Value.Required, fieldName)
-		}
-
-		// Apply example
+		// Apply example. This can be overridden below on the example option.
 		if parsed.Example != "" {
 			var example any
 			exampleBytes := []byte(parsed.Example)
@@ -88,6 +81,29 @@ func (g *Generator) buildSchema(doc *openapi3.T, message *protogen.Message, pare
 			}
 
 			fieldSchemaRef.Value.Example = example
+		}
+
+		// Try to set deprecated
+		if standardOptions, ok := field.Desc.Options().(*descriptorpb.FieldOptions); ok {
+			fieldSchemaRef.Value.Deprecated = standardOptions.GetDeprecated()
+		}
+
+		// Required option.
+		extRequired := proto.GetExtension(field.Desc.Options(), oapiv1.E_Required)
+		if extRequired != nil && extRequired != oapiv1.E_Required.InterfaceOf(oapiv1.E_Required.Zero()) {
+			parent.Value.Required = append(parent.Value.Required, fieldName)
+		}
+
+		// Example option.
+		extExample := proto.GetExtension(field.Desc.Options(), oapiv1.E_Example)
+		if extExample != nil && extExample != oapiv1.E_Example.InterfaceOf(oapiv1.E_Example.Zero()) {
+			parent.Value.Description = *extExample.(*string)
+		}
+
+		// Field options.
+		err := g.setSchemaProperties(fieldSchemaRef.Value, parent.Value, field)
+		if err != nil {
+			return err
 		}
 
 		// TODO: Figure out how to merge the following 2 logical pieces together so most of it isn't
@@ -247,4 +263,75 @@ func (g *Generator) getPackageSchema(pkg, name string) string {
 	}
 
 	return path.Join(prefix, pkg+"."+name)
+}
+
+// setSchemaProperties sets properties on a property schema based on field options.
+func (g *Generator) setSchemaProperties(s *openapi3.Schema, parent *openapi3.Schema, field *protogen.Field) error {
+	extOptions := proto.GetExtension(field.Desc.Options(), oapiv1.E_Options)
+	if extOptions == nil || extOptions == oapiv1.E_Options.InterfaceOf(oapiv1.E_Options.Zero()) {
+		return nil
+	}
+
+	fieldName := g.getFieldName(field)
+
+	fo := extOptions.(*oapiv1.FieldOptions)
+
+	if fo.Required != nil && *fo.Required {
+		parent.Required = append(parent.Required, fieldName)
+	}
+
+	if fo.Example != nil && strings.TrimSpace(*fo.Example) != "" {
+		exampleBytes := []byte(*fo.Example)
+		if json.Valid(exampleBytes) {
+			var val any
+			if err := json.Unmarshal(exampleBytes, &val); err != nil {
+				return err
+			}
+			s.Example = val
+		} else {
+			s.Example = *fo.Example
+		}
+	}
+
+	s.Min = fo.Min
+	s.Max = fo.Max
+
+	if fo.MinLength != nil {
+		// This is not a pointer so we'll optionally assign.
+		s.MinLength = *fo.MinLength
+	}
+
+	s.MaxLength = fo.MaxLength
+
+	if fo.MinItems != nil {
+		s.MinItems = *fo.MinItems
+	}
+
+	s.MaxItems = fo.MaxItems
+
+	if fo.UniqueItems != nil {
+		s.UniqueItems = *fo.UniqueItems
+	}
+
+	if fo.MinProperties != nil {
+		s.MinProps = *fo.MinProperties
+	}
+
+	s.MaxProps = fo.MaxProperties
+
+	if fo.Pattern != nil {
+		s.Pattern = *fo.Pattern
+	}
+
+	if fo.ExclusiveMin != nil {
+		s.ExclusiveMin = *fo.ExclusiveMin
+	}
+
+	if fo.ExclusiveMax != nil {
+		s.ExclusiveMax = *fo.ExclusiveMax
+	}
+
+	s.MultipleOf = fo.MultipleOf
+
+	return nil
 }

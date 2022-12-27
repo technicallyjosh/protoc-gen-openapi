@@ -13,4 +13,56 @@ extend google.protobuf.FieldOptions {
   // Value for the example on the field. This overrides any examples in
   // comments.
   string example = 5151;
+
+  FieldOptions options = 5152;
+}
+
+message FieldOptions {
+  // Marks the field as required.
+  optional bool required = 1;
+
+  // Value for the example on the field. This overrides any examples in
+  // comments.
+  optional string example = 2;
+
+  // Minimum value for the field.
+  optional double min = 3;
+
+  // Maximum value for the field.
+  optional double max = 4;
+
+  // Minimum length for the field.
+  optional uint64 min_length = 5;
+
+  // Maximum length for the field.
+  optional uint64 max_length = 6;
+
+  // Minimum amount of items for an array type.
+  optional uint64 min_items = 7;
+
+  // Maximum amount of items for an array type.
+  optional uint64 max_items = 8;
+
+  // All items in the array should be unique.
+  optional bool unique_items = 9;
+
+  // Minimum amount of properties that the field object can have.
+  optional uint64 min_properties = 10;
+
+  // Maximum amount of properties that the field object can have.
+  optional uint64 max_properties = 11;
+
+  // Regex pattern for the field to match. Refer to
+  // https://www.ecma-international.org/ecma-262/5.1/#sec-15.10.1
+  optional string pattern = 12;
+
+  // Minimum value of min excluding the defined. e.g. If min=100, 101 is the
+  // min.
+  optional bool exclusive_min = 13;
+
+  // Maximum value of max excluding the defined. e.g. If max=100, 99 is the max.
+  optional bool exclusive_max = 14;
+
+  // The number that the value must be a multiple of.
+  optional double multiple_of = 15;
 }
