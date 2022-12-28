@@ -8,6 +8,7 @@ import (
 
 type XTagGroups []*XTagGroup
 
+// find returns a found tag group by name or nil.
 func (g *XTagGroups) find(name string) *XTagGroup {
 	for _, group := range *g {
 		if group.Name == name {
@@ -24,6 +25,7 @@ type XTagGroup struct {
 	Tags []string `json:"tags" yaml:"tags"`
 }
 
+// tagExists returns whether a tag exists on a group or not.
 func (g *XTagGroup) tagExists(name string) bool {
 	for _, tag := range g.Tags {
 		if tag == name {
