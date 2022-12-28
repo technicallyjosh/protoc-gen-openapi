@@ -151,7 +151,8 @@ service MyService {
 ## Features In Progress
 
 - Path Parameters and Query
-- Field requirements (e.g. `>` `<` etc...)
+- [Enum](https://json-schema.org/understanding-json-schema/reference/generic.html#enumerated-values)
+  requirements on fields
 
 ## Contributing
 
