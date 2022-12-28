@@ -13,10 +13,12 @@ var (
 
 type messageMap map[string]*protogen.Message
 
+// Set adds the specified message to the map.
 func (m messageMap) Set(val *protogen.Message) {
 	m[util.FullName(val)] = val
 }
 
+// Get returns the message by key or nil.
 func (m messageMap) Get(key string) *protogen.Message {
 	val, ok := m[key]
 	if !ok {

@@ -26,7 +26,7 @@ func (g *Generator) addDefaultResponse(doc *openapi3.T) error {
 			Content: openapi3.Content{
 				*g.config.ContentType: &openapi3.MediaType{
 					Schema: &openapi3.SchemaRef{
-						Ref: "#/components/schemas/" + name,
+						Ref: newSchemaRef(name),
 					},
 				},
 			},

@@ -87,8 +87,10 @@ func (g *Generator) Run() error {
 // buildDocument builds out the base of the OAPI document with some defaults.
 func (g *Generator) buildDocument() (*openapi3.T, error) {
 	doc := &openapi3.T{
-		ExtensionProps: openapi3.ExtensionProps{},
-		OpenAPI:        "3.0.3",
+		ExtensionProps: openapi3.ExtensionProps{
+			Extensions: make(map[string]any),
+		},
+		OpenAPI: "3.0.3",
 		Components: openapi3.Components{
 			SecuritySchemes: make(openapi3.SecuritySchemes),
 			Schemas:         make(openapi3.Schemas),

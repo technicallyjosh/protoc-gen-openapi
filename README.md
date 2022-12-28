@@ -30,7 +30,7 @@ go install github.com/technicallyjosh/protoc-gen-openapi@latest
 | `version`          | The version of the API.                                                           | 0.0.1            |
 | `title`            | The title of the API.                                                             |                  |
 | `description`      | A description of the API.                                                         |                  |
-| `ignore`           | A list of package names to ignore delimited with a pipe.                          |                  |
+| `ignore`           | A list of proto package names to ignore delimited by pipes.                       |                  |
 | `default_response` | The default response to be used.<sup>1</sup>                                      |                  |
 | `content_type`     | The content type to be associated with all operations.<sup>1</sup>                | application/json |
 | `json_names`       | Use the JSON names that Protobuf provides. Otherwise, proto field names are used. | false            |
@@ -149,6 +149,7 @@ service MyService {
 ```
 
 ## Features In Progress
+
 - Path Parameters and Query
 - Field requirements (e.g. `>` `<` etc...)
 

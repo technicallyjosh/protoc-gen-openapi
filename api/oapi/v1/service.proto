@@ -29,4 +29,8 @@ message ServiceOptions {
   // Sets the "x-displayName" extension property for the OAPI tag. This is used
   // by redocly/redoc for a friendly tag name.
   string display_name = 5;
+
+  // Adds the service to the extension x-tagGroups. If the group doesn't exist,
+  // it is created and the service tag is added to it.
+  string tag_group = 6;
 }

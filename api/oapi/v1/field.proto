@@ -14,6 +14,7 @@ extend google.protobuf.FieldOptions {
   // comments.
   string example = 5151;
 
+  // Options for a field.
   FieldOptions options = 5152;
 }
 

@@ -88,6 +88,14 @@ func (g *Generator) addPathsToDoc(doc *openapi3.T, services []*protogen.Service)
 			ExtensionProps: props,
 		})
 
+		tagGroup := strings.TrimSpace(serviceOptions.TagGroup)
+		if tagGroup != "" {
+			err := addTagGroup(doc, tagGroup, tagName)
+			if err != nil {
+				return err
+			}
+		}
+
 		for _, method := range service.Methods {
 			err := g.addOperation(addOperationParams{
 				doc:            doc,
@@ -163,7 +171,7 @@ func (g *Generator) addOperation(p addOperationParams) error {
 		Tags:        []string{p.tagName},
 		Description: description,
 		OperationID: operationID,
-		Servers:     &p.doc.Servers,
+		Servers:     &openapi3.Servers{server},
 		Deprecated:  methodOptions.Deprecated,
 		Responses:   make(openapi3.Responses),
 		Summary:     methodOptions.Summary,
@@ -274,8 +282,8 @@ func (g *Generator) addOperation(p addOperationParams) error {
 		inputFullName := string(p.method.Input.Desc.FullName())
 		message := allMessages.Get(inputFullName)
 
-		// If another type is defined such as google.protobuf.Any, for now we'll just
-		// exit.
+		// If another type is defined such as google.protobuf.Any or
+		// google.protobuf.Empty, for now we'll just exit.
 		// TODO: support `Any` type for requests 🤔
 		if message != nil {
 			requestSchemaRef := &openapi3.SchemaRef{

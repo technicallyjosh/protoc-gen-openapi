@@ -236,6 +236,8 @@ var (
 	//
 	// optional string example = 5151;
 	E_Example = &file_oapi_v1_field_proto_extTypes[1]
+	// Options for a field.
+	//
 	// optional oapi.v1.FieldOptions options = 5152;
 	E_Options = &file_oapi_v1_field_proto_extTypes[2]
 )

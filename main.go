@@ -27,9 +27,6 @@ func main() {
 	}
 
 	opts.Run(func(plugin *protogen.Plugin) error {
-		// Enable "optional" keyword in front of type. (e.g. optional string label = 1;)
-		// plugin.SupportedFeatures = uint64(pluginpb.CodeGeneratorResponse_FEATURE_PROTO3_OPTIONAL)
-
 		return generator.New(plugin, conf).Run()
 	})
 }
