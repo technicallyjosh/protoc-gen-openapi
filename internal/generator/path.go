@@ -78,7 +78,7 @@ func (g *Generator) addPathsToDoc(doc *openapi3.T, services []*protogen.Service)
 
 		props := openapi3.ExtensionProps{
 			Extensions: map[string]any{
-				"x-displayName": serviceOptions.DisplayName,
+				"x-displayName": serviceOptions.XDisplayName,
 			},
 		}
 
@@ -88,7 +88,7 @@ func (g *Generator) addPathsToDoc(doc *openapi3.T, services []*protogen.Service)
 			ExtensionProps: props,
 		})
 
-		tagGroup := strings.TrimSpace(serviceOptions.TagGroup)
+		tagGroup := strings.TrimSpace(serviceOptions.XTagGroup)
 		if tagGroup != "" {
 			err := addTagGroup(doc, tagGroup, tagName)
 			if err != nil {

@@ -26,11 +26,10 @@ message ServiceOptions {
   // service. This can be overridden by a method definition.
   string default_response = 4;
 
-  // Sets the "x-displayName" extension property for the OAPI tag. This is used
-  // by redocly/redoc for a friendly tag name.
-  string display_name = 5;
+  // Sets the "x-displayName" extension property.
+  string x_display_name = 5;
 
-  // Adds the service to the extension x-tagGroups. If the group doesn't exist,
+  // Adds the service to "x-tagGroups" extension property. If the group doesn't exist,
   // it is created and the service tag is added to it.
-  string tag_group = 6;
+  string x_tag_group = 6;
 }
