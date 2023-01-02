@@ -96,6 +96,11 @@ func (g *Generator) addPathsToDoc(doc *openapi3.T, services []*protogen.Service)
 			}
 		}
 
+		parameters, err := g.parseParameters(openapi3.ParameterInPath, pathPrefix, serviceOptions.PathParameter)
+		if err != nil {
+			return err
+		}
+
 		for _, method := range service.Methods {
 			err := g.addOperation(addOperationParams{
 				doc:            doc,
@@ -107,6 +112,7 @@ func (g *Generator) addPathsToDoc(doc *openapi3.T, services []*protogen.Service)
 				tagName:        tagName,
 				pathPrefix:     pathPrefix,
 				packageName:    packageName,
+				parameters:     parameters,
 			})
 			if err != nil {
 				return err
@@ -115,6 +121,68 @@ func (g *Generator) addPathsToDoc(doc *openapi3.T, services []*protogen.Service)
 	}
 
 	return nil
+}
+
+func (g *Generator) parseParameters(in, path string, parameters []*oapiv1.Parameter) (openapi3.Parameters, error) {
+	params := make(openapi3.Parameters, 0)
+
+	for _, parameter := range parameters {
+		if !strings.Contains(path, fmt.Sprintf("{%s}", parameter.Name)) {
+			return nil, fmt.Errorf("parameter {%s} is missing from path %s", parameter.Name, path)
+		}
+
+		paramRef := &openapi3.ParameterRef{
+			Value: &openapi3.Parameter{
+				Name:     parameter.Name,
+				In:       in,
+				Required: in == openapi3.ParameterInPath,
+			},
+		}
+
+		var paramType string
+
+		switch parameter.Type {
+		case oapiv1.Parameter_TYPE_UNSPECIFIED, oapiv1.Parameter_TYPE_STRING:
+			paramType = openapi3.TypeString
+		case oapiv1.Parameter_TYPE_INTEGER:
+			paramType = openapi3.TypeInteger
+		case oapiv1.Parameter_TYPE_NUMBER:
+			paramType = openapi3.TypeNumber
+		case oapiv1.Parameter_TYPE_BOOLEAN:
+			paramType = openapi3.TypeBoolean
+		default:
+			return nil, fmt.Errorf("invalid parameter type: %s", parameter.Type)
+		}
+
+		paramRef.Value.Schema = &openapi3.SchemaRef{
+			Value: &openapi3.Schema{
+				Type: paramType,
+			},
+		}
+
+		if strings.TrimSpace(parameter.Description) != "" {
+			paramRef.Value.Description = parameter.Description
+		}
+
+		if strings.TrimSpace(parameter.Example) != "" {
+			paramRef.Value.Example = parameter.Example
+		}
+
+		if parameter.Required != nil {
+			paramRef.Value.Required = *parameter.Required
+		}
+
+		if parameter.Options != nil {
+			err := setProperties(paramRef.Value.Schema.Value, parameter.Options)
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		params = append(params, paramRef)
+	}
+
+	return params, nil
 }
 
 type addOperationParams struct {
@@ -127,6 +195,7 @@ type addOperationParams struct {
 	tagName        string
 	pathPrefix     string
 	packageName    string
+	parameters     openapi3.Parameters
 }
 
 // addOperation creates an operation for a path and adds it.
@@ -175,6 +244,7 @@ func (g *Generator) addOperation(p addOperationParams) error {
 		Deprecated:  methodOptions.Deprecated,
 		Responses:   make(openapi3.Responses),
 		Summary:     methodOptions.Summary,
+		Parameters:  make(openapi3.Parameters, 0),
 	}
 
 	switch m := methodOptions.Method.(type) {
@@ -277,6 +347,30 @@ func (g *Generator) addOperation(p addOperationParams) error {
 			Schema: &openapi3.SchemaRef{},
 		},
 	}
+
+	if len(methodOptions.PathParameter) > 0 {
+		parameters, err := g.parseParameters(openapi3.ParameterInPath, methodPath, methodOptions.PathParameter)
+		if err != nil {
+			return err
+		}
+
+		// Check to see if the method-defined parameter already exists and
+		// error.
+		for _, p1 := range parameters {
+			for _, p2 := range p.parameters {
+				if p2.Value.Name == p1.Value.Name {
+					return fmt.Errorf(
+						"parameter '%s' is already defined in service definition",
+						p1.Value.Name,
+					)
+				}
+			}
+		}
+
+		p.parameters = append(p.parameters, parameters...)
+	}
+
+	op.Parameters = p.parameters
 
 	if methodName != http.MethodGet {
 		inputFullName := string(p.method.Input.Desc.FullName())

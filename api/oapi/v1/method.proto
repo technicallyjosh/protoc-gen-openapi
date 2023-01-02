@@ -3,6 +3,7 @@ syntax = "proto3";
 package oapi.v1;
 
 import "google/protobuf/descriptor.proto";
+import "oapi/v1/parameter.proto";
 
 option go_package = "github.com/technicallyjosh/protoc-gen-openapi/api/oapi/v1;oapiv1";
 
@@ -46,4 +47,7 @@ message MethodOptions {
 
   // Summary for the method. Generally a friendly alternative name.
   string summary = 11;
+
+  // Path parameters for the method.
+  repeated Parameter path_parameter = 12;
 }

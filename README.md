@@ -150,7 +150,9 @@ service MyService {
 
 ## Features In Progress
 
-- Path Parameters and Query
+- Query Parameters
+- Header Parameters
+- Cookie Parameters
 - [Enum](https://json-schema.org/understanding-json-schema/reference/generic.html#enumerated-values)
   requirements on fields
 

@@ -3,6 +3,7 @@ syntax = "proto3";
 package oapi.v1;
 
 import "google/protobuf/descriptor.proto";
+import "oapi/v1/parameter.proto";
 
 option go_package = "github.com/technicallyjosh/protoc-gen-openapi/api/oapi/v1;oapiv1";
 
@@ -32,4 +33,7 @@ message ServiceOptions {
   // Adds the service to "x-tagGroups" extension property. If the group doesn't exist,
   // it is created and the service tag is added to it.
   string x_tag_group = 6;
+
+  // Path parameters for the service.
+  repeated Parameter path_parameter = 7;
 }

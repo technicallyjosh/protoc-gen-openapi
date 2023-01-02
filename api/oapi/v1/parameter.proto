@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package oapi.v1;
+
+import "oapi/v1/field.proto";
+
+option go_package = "github.com/technicallyjosh/protoc-gen-openapi/api/oapi/v1;oapiv1";
+
+message Parameter {
+  enum Type {
+    TYPE_UNSPECIFIED = 0;
+    TYPE_STRING = 1;
+    TYPE_NUMBER = 2;
+    TYPE_INTEGER = 3;
+    TYPE_BOOLEAN = 4;
+  }
+
+  // Name of the parameter. This should exist in the defined path from the
+  // service prefix or method definition.
+  //
+  // For example: If the value is "id", then the path should have something like
+  // `my-path/{id}` in it.
+  string name = 1;
+
+  // Type of the parameter.
+  Type type = 2;
+
+  // Value for the example of the parameter.
+  string example = 3;
+
+  // Description of the parameter.
+  string description = 4;
+
+  // Options for the parameter
+  FieldOptions options = 5;
+
+  // Set the parameter as required. This is true by default for path parameters.
+  optional bool required = 6;
+}

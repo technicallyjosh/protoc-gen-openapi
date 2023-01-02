@@ -265,39 +265,11 @@ func (g *Generator) getPackageSchema(pkg, name string) string {
 	return path.Join(prefix, pkg+"."+name)
 }
 
-// setSchemaProperties sets properties on a property schema based on field options.
-func (g *Generator) setSchemaProperties(s *openapi3.Schema, parent *openapi3.Schema, field *protogen.Field) error {
-	extOptions := proto.GetExtension(field.Desc.Options(), oapiv1.E_Options)
-	if extOptions == nil || extOptions == oapiv1.E_Options.InterfaceOf(oapiv1.E_Options.Zero()) {
-		return nil
-	}
-
-	fieldName := g.getFieldName(field)
-
-	fo := extOptions.(*oapiv1.FieldOptions)
-
-	if fo.Required != nil && *fo.Required {
-		parent.Required = append(parent.Required, fieldName)
-	}
-
-	if fo.Example != nil && strings.TrimSpace(*fo.Example) != "" {
-		exampleBytes := []byte(*fo.Example)
-		if json.Valid(exampleBytes) {
-			var val any
-			if err := json.Unmarshal(exampleBytes, &val); err != nil {
-				return err
-			}
-			s.Example = val
-		} else {
-			s.Example = *fo.Example
-		}
-	}
-
+func setProperties(s *openapi3.Schema, fo *oapiv1.FieldOptions) error {
 	s.Min = fo.Min
 	s.Max = fo.Max
 
 	if fo.MinLength != nil {
-		// This is not a pointer so we'll optionally assign.
 		s.MinLength = *fo.MinLength
 	}
 
@@ -334,4 +306,16 @@ func (g *Generator) setSchemaProperties(s *openapi3.Schema, parent *openapi3.Sch
 	s.MultipleOf = fo.MultipleOf
 
 	return nil
+}
+
+// setSchemaProperties sets properties on a property schema based on field options.
+func (g *Generator) setSchemaProperties(s *openapi3.Schema, parent *openapi3.Schema, field *protogen.Field) error {
+	extOptions := proto.GetExtension(field.Desc.Options(), oapiv1.E_Options)
+	if extOptions == nil || extOptions == oapiv1.E_Options.InterfaceOf(oapiv1.E_Options.Zero()) {
+		return nil
+	}
+
+	fo := extOptions.(*oapiv1.FieldOptions)
+
+	return setProperties(s, fo)
 }

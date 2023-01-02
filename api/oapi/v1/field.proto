@@ -19,51 +19,44 @@ extend google.protobuf.FieldOptions {
 }
 
 message FieldOptions {
-  // Marks the field as required.
-  optional bool required = 1;
-
-  // Value for the example on the field. This overrides any examples in
-  // comments.
-  optional string example = 2;
-
   // Minimum value for the field.
-  optional double min = 3;
+  optional double min = 1;
 
   // Maximum value for the field.
-  optional double max = 4;
+  optional double max = 2;
 
   // Minimum length for the field.
-  optional uint64 min_length = 5;
+  optional uint64 min_length = 3;
 
   // Maximum length for the field.
-  optional uint64 max_length = 6;
+  optional uint64 max_length = 4;
 
   // Minimum amount of items for an array type.
-  optional uint64 min_items = 7;
+  optional uint64 min_items = 5;
 
   // Maximum amount of items for an array type.
-  optional uint64 max_items = 8;
+  optional uint64 max_items = 6;
 
   // All items in the array should be unique.
-  optional bool unique_items = 9;
+  optional bool unique_items = 7;
 
   // Minimum amount of properties that the field object can have.
-  optional uint64 min_properties = 10;
+  optional uint64 min_properties = 8;
 
   // Maximum amount of properties that the field object can have.
-  optional uint64 max_properties = 11;
+  optional uint64 max_properties = 9;
 
   // Regex pattern for the field to match. Refer to
   // https://www.ecma-international.org/ecma-262/5.1/#sec-15.10.1
-  optional string pattern = 12;
+  optional string pattern = 10;
 
   // Minimum value of min excluding the defined. e.g. If min=100, 101 is the
   // min.
-  optional bool exclusive_min = 13;
+  optional bool exclusive_min = 11;
 
   // Maximum value of max excluding the defined. e.g. If max=100, 99 is the max.
-  optional bool exclusive_max = 14;
+  optional bool exclusive_max = 12;
 
   // The number that the value must be a multiple of.
-  optional double multiple_of = 15;
+  optional double multiple_of = 13;
 }
