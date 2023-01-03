@@ -123,6 +123,7 @@ func (g *Generator) addPathsToDoc(doc *openapi3.T, services []*protogen.Service)
 	return nil
 }
 
+// parseParameters parses and returns openapi3 converted parameters from defined parameters.
 func (g *Generator) parseParameters(in, path string, parameters []*oapiv1.Parameter) (openapi3.Parameters, error) {
 	params := make(openapi3.Parameters, 0)
 
