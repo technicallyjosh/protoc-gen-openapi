@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	// messageMap holds all messages with their full paths for reference whenever we need to look
+	// allMessages holds all messages with their full paths for reference whenever we need to look
 	// for a message to build out.
 	allMessages = make(messageMap)
 )
