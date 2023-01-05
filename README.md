@@ -1,5 +1,6 @@
 # protoc-gen-openapi
 
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/technicallyjosh/protoc-gen-openapi?style=flat-square)
 [![lint status](https://img.shields.io/github/actions/workflow/status/technicallyjosh/protoc-gen-openapi/run-lint.yaml?style=flat-square&label=lint)](https://github.com/technicallyjosh/protoc-gen-openapi/actions/workflows/run-lint.yaml)
 [![go report card](https://goreportcard.com/badge/github.com/technicallyjosh/protoc-gen-openapi?style=flat-square)](https://goreportcard.com/report/github.com/technicallyjosh/protoc-gen-openapi)
 
