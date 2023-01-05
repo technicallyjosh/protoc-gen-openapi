@@ -21,7 +21,7 @@ on:
 
 jobs:
   lint:
-    uses: ./github/workflows/lint.yaml
+    uses: ./.github/workflows/lint.yaml
 
   release_proto:
     name: Release Proto
