@@ -63,13 +63,13 @@ jobs:
         id: get_version
         run: |
           version=$(git describe --abbrev=0 --match "v*.*.*" || echo "v0.1.0")
-          echo ::set-output name=version::$version
+          echo "{version=$version}" >> $GITHUB_OUTPUT
       - name: Next Version
         uses: technicallyjosh/next-version-action@v1
         id: version
         with:
           version: ${{ steps.get_version.outputs.version }}
-          type: minor
+          type: ${{ inputs.version_type }}
       - name: Tag
         uses: rickstaa/action-create-tag@v1
         with:
