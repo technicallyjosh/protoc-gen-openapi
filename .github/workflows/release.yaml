@@ -1,0 +1,86 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      type:
+        description: The type of release.
+        type: choice
+        options:
+          - proto
+          - generator
+          - all
+      version_type:
+        description: The version type to bump.
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+        default: minor
+
+jobs:
+  lint:
+    uses: ./github/workflows/lint.yaml
+
+  release_proto:
+    name: Release Proto
+    runs-on: ubuntu-latest
+    if: ${{ inputs.type == 'proto' || inputs.type == 'all' }}
+    needs:
+      - lint
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Buf Setup
+        uses: bufbuild/buf-setup-action@v1
+      - name: Push Proto
+        uses: bufbuild/buf-push-action@v1
+        with:
+          input: api
+          buf_token: ${{ secrets.BUF_TOKEN }}
+
+  release_generator:
+    name: Release Generator
+    runs-on: ubuntu-latest
+    if: ${{ intputs.type == 'generator' || inputs.type == 'all' }}
+    needs:
+      - lint
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Go Setup
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+          check-latest: true
+          cache: true
+      - name: Go Mod Download
+        run: go mod download
+      - name: Get version
+        id: get_version
+        run: |
+          version=$(git describe --abbrev=0 --match "v*.*.*" || echo "v0.1.0")
+          echo ::set-output name=version::$version
+      - name: Next Version
+        uses: technicallyjosh/next-version-action@v1
+        id: version
+        with:
+          version: ${{ steps.get_version.outputs.version }}
+          type: minor
+      - name: Tag
+        uses: rickstaa/action-create-tag@v1
+        with:
+          tag: ${{ steps.version.outputs.next_version }}
+      - uses: goreleaser/goreleaser-action@v4
+        with:
+          distribution: goreleaser
+          version: latest
+          args: release --rm-dist
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Rollback
+        if: failure()
+        run: git push --delete origin ${{ steps.version.outputs.version_tag }}
