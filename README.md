@@ -125,6 +125,7 @@ message CreateSomethingResponse {
 
 <details>
 <summary><h3>Host definitions</h3></summary>
+
 You can define hosts at the file, service, or method level. Each one overrides
 the previous. This allows for more advanced composition.
 
@@ -160,7 +161,8 @@ service MyService {
 
 <details>
 <summary><h3>Service Prefixes</h3></summary>
-Each service can set a path prefix for all methods to inherit. This is useful
+
+Each service can have a path prefix set for all methods to inherit. This is useful
 when versioning your API or if you have a parameter that is defined for each
 method route.
 
