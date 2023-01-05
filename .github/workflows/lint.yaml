@@ -14,6 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: bufbuild/buf-setup-action@v1
       - uses: bufbuild/buf-lint-action@v1
         with:
           input: api
@@ -35,4 +36,4 @@ jobs:
       - uses: golangci/golangci-lint-action@v3
         if: ${{ inputs.lint_go }}
         with:
-          version: 1.50.1
+          version: v1.50.1
