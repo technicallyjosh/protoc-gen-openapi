@@ -94,21 +94,23 @@ service MyService {
     display_name: "My Service"
   };
 
-  rpc CreateSomething (CreateSomethingRequest) returns (GetSomethingResponse) {
+  rpc CreateSomething (CreateSomethingRequest) returns (CreateSomethingResponse) {
     option (oapi.v1.method) = {
       post: "create-something"
       summary: "Create Something"
+      status: 201
     };
   }
 }
 
 message CreateSomethingRequest {
-  // The name of something
+  // The name of something.
   // Example: something-awesome
   string name = 1 [(oapi.v1.required) = true];
 }
 
 message CreateSomethingResponse {
+  // The ID of something.
   string id = 1;
   string name = 2;
 }
@@ -121,8 +123,8 @@ message CreateSomethingResponse {
 > Defining features is a work in progress. I aim to explain all that's possible
 > the best I can.
 
-### Host definitions
-
+<details>
+<summary><h3>Host definitions</h3></summary>
 You can define hosts at the file, service, or method level. Each one overrides
 the previous. This allows for more advanced composition.
 
@@ -131,9 +133,11 @@ the previous. This allows for more advanced composition.
 ```protobuf
 syntax = "proto3";
 
+import "google/protobuf/empty.proto";
 import "oapi/v1/file.proto";
-import "oapi/v1/service.proto";
 import "oapi/v1/method.proto";
+import "oapi/v1/service.proto";
+
 
 option (oapi.v1.file) = {
   host: "myawesomeapi.com" // file-defined for all services and methods
@@ -151,6 +155,52 @@ service MyService {
   }
 }
 ```
+
+</details>
+
+<details>
+<summary><h3>Service Prefixes</h3></summary>
+Each service can set a path prefix for all methods to inherit. This is useful
+when versioning your API or if you have a parameter that is defined for each
+method route.
+
+_**You can override the entire path in the method by starting the path out with
+a `/`.**_
+
+**Example:**
+
+```protobuf
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "oapi/v1/file.proto";
+import "oapi/v1/method.proto";
+import "oapi/v1/service.proto";
+
+option (oapi.v1.file) = {
+  host: "myawesomeapi.com"
+};
+
+service MyService {
+  option (oapi.v1.service) = {
+    prefix: "/v1"
+  };
+
+  rpc CreateSomething (google.protobuf.Empty) returns (google.protobuf.Empty) {
+    option (oapi.v1.method) = {
+      post: "create" // becomes /v1/create
+    };
+  }
+
+  rpc OverrideSomething (google.protobuf.Empty) returns (google.protobuf.Empty) {
+    option (oapi.v1.method) = {
+      get: "/create" // becomes /create
+    };
+  }
+}
+```
+
+</details>
 
 ## Features In Progress
 
