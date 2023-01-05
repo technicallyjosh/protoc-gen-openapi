@@ -5,7 +5,7 @@ on:
 
 jobs:
   lint:
-    uses: .github/workflows/lint.yaml
+    uses: ./.github/workflows/lint.yaml
     with:
       lint_proto: true
       lint_go: true
