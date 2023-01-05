@@ -43,7 +43,7 @@ jobs:
   release_generator:
     name: Release Generator
     runs-on: ubuntu-latest
-    if: ${{ intputs.type == 'generator' || inputs.type == 'all' }}
+    if: ${{ inputs.type == 'generator' || inputs.type == 'all' }}
     needs:
       - lint
     steps:
