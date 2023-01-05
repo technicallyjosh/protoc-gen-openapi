@@ -1,0 +1,38 @@
+on:
+  workflow_call:
+    inputs:
+      lint_proto:
+        type: boolean
+        default: false
+      lint_go:
+        type: boolean
+        default: false
+
+jobs:
+  lint_proto:
+    name: Lint Proto
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: bufbuild/buf-lint-action@v1
+        with:
+          input: api
+      - uses: bufbuild/buf-breaking-action@v1
+        with:
+          against: "https://github.com/${GITHUB_REPOSITORY}.git#branch=main,ref=HEAD~1"
+
+  lint_go:
+    name: Lint Go
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        if: ${{ inputs.lint_go }}
+        with:
+          go-version: 1.19
+          check-latest: true
+          cache: true
+      - uses: golangci/golangci-lint-action@v3
+        if: ${{ inputs.lint_go }}
+        with:
+          version: 1.50.1
