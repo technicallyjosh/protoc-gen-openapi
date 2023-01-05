@@ -1,5 +1,7 @@
 # protoc-gen-openapi
 
+![example workflow](https://github.com/technicallyjosh/protoc-gen-openapi/actions/workflows/run-lint.yaml/badge.svg)
+
 **Yes**, this is _another_ protoc generator for OpenAPI. I created this for a
 couple
 reasons...
