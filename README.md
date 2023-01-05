@@ -1,6 +1,7 @@
 # protoc-gen-openapi
 
-![example workflow](https://github.com/technicallyjosh/protoc-gen-openapi/actions/workflows/run-lint.yaml/badge.svg)
+![build status](https://img.shields.io/github/actions/workflow/status/technicallyjosh/protoc-gen-openapi/run-lint.yaml?style=for-the-badge)
+[![Go Report Card](https://goreportcard.com/badge/github.com/technicallyjosh/protoc-gen-openapi?style=for-the-badge)](https://goreportcard.com/report/github.com/technicallyjosh/protoc-gen-openapi)
 
 **Yes**, this is _another_ protoc generator for OpenAPI. I created this for a
 couple
