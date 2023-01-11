@@ -10,6 +10,7 @@ on:
           - proto
           - generator
           - all
+        default: all
       version_type:
         description: The version type to bump.
         type: choice
