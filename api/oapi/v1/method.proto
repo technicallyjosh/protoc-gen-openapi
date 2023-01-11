@@ -50,4 +50,13 @@ message MethodOptions {
 
   // Path parameters for the method.
   repeated Parameter path_parameter = 12;
+
+  // Query parameters for the method.
+  repeated Parameter query_parameter = 13;
+
+  // Header parameters for the method.
+  repeated Parameter header_parameter = 14;
+
+  // Cookie parameters for the method.
+  repeated Parameter cookie_parameter = 15;
 }

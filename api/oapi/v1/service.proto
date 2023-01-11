@@ -36,4 +36,13 @@ message ServiceOptions {
 
   // Path parameters for the service.
   repeated Parameter path_parameter = 7;
+
+  // Query parameters for the service.
+  repeated Parameter query_parameter = 8;
+
+  // Header parameters for the service.
+  repeated Parameter header_parameter = 9;
+
+  // Cookie parameters for the service.
+  repeated Parameter cookie_parameter = 10;
 }

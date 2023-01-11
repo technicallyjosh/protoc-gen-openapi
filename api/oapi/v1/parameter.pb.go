@@ -80,11 +80,10 @@ type Parameter struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// Name of the parameter. This should exist in the defined path from the
-	// service prefix or method definition.
-	//
-	// For example: If the value is "id", then the path should have something like
-	// `my-path/{id}` in it.
+	// Name of the parameter. If a path parameter, this should exist in the path
+	// of the service prefix or method definition. For example: If the value is
+	// "id", then the path should have something like `my-path/{id}` in it or the
+	// query should.
 	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	// Type of the parameter.
 	Type Parameter_Type `protobuf:"varint,2,opt,name=type,proto3,enum=oapi.v1.Parameter_Type" json:"type,omitempty"`

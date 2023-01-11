@@ -96,23 +96,29 @@ func (g *Generator) addPathsToDoc(doc *openapi3.T, services []*protogen.Service)
 			}
 		}
 
-		parameters, err := g.parseParameters(openapi3.ParameterInPath, pathPrefix, serviceOptions.PathParameter)
+		parameters, err := g.createParameters(
+			pathPrefix,
+			serviceOptions.PathParameter,
+			serviceOptions.QueryParameter,
+			serviceOptions.HeaderParameter,
+			serviceOptions.CookieParameter,
+		)
 		if err != nil {
 			return err
 		}
 
 		for _, method := range service.Methods {
 			err := g.addOperation(addOperationParams{
-				doc:            doc,
-				service:        service,
-				serviceOptions: serviceOptions,
-				method:         method,
-				host:           host,
-				contentType:    contentType,
-				tagName:        tagName,
-				pathPrefix:     pathPrefix,
-				packageName:    packageName,
-				parameters:     parameters,
+				doc:               doc,
+				service:           service,
+				serviceOptions:    serviceOptions,
+				method:            method,
+				host:              host,
+				contentType:       contentType,
+				tagName:           tagName,
+				pathPrefix:        pathPrefix,
+				packageName:       packageName,
+				serviceParameters: parameters,
 			})
 			if err != nil {
 				return err
@@ -123,12 +129,39 @@ func (g *Generator) addPathsToDoc(doc *openapi3.T, services []*protogen.Service)
 	return nil
 }
 
+func (g *Generator) createParameters(path string, pathParams, queryParams, headerParams, cookieParams []*oapiv1.Parameter) (openapi3.Parameters, error) {
+	parameters, err := g.parseParameters(openapi3.ParameterInPath, path, pathParams)
+	if err != nil {
+		return nil, err
+	}
+
+	queryParameters, err := g.parseParameters(openapi3.ParameterInQuery, "", queryParams)
+	if err != nil {
+		return nil, err
+	}
+	parameters = append(parameters, queryParameters...)
+
+	headerParameters, err := g.parseParameters(openapi3.ParameterInHeader, "", headerParams)
+	if err != nil {
+		return nil, err
+	}
+	parameters = append(parameters, headerParameters...)
+
+	cookieParameters, err := g.parseParameters(openapi3.ParameterInCookie, "", cookieParams)
+	if err != nil {
+		return nil, err
+	}
+	parameters = append(parameters, cookieParameters...)
+
+	return parameters, nil
+}
+
 // parseParameters parses and returns openapi3 converted parameters from defined parameters.
 func (g *Generator) parseParameters(in, path string, parameters []*oapiv1.Parameter) (openapi3.Parameters, error) {
 	params := make(openapi3.Parameters, 0)
 
 	for _, parameter := range parameters {
-		if !strings.Contains(path, fmt.Sprintf("{%s}", parameter.Name)) {
+		if in == openapi3.ParameterInPath && !strings.Contains(path, fmt.Sprintf("{%s}", parameter.Name)) {
 			return nil, fmt.Errorf("parameter {%s} is missing from path %s", parameter.Name, path)
 		}
 
@@ -187,16 +220,16 @@ func (g *Generator) parseParameters(in, path string, parameters []*oapiv1.Parame
 }
 
 type addOperationParams struct {
-	doc            *openapi3.T
-	service        *protogen.Service
-	method         *protogen.Method
-	serviceOptions *oapiv1.ServiceOptions
-	host           string
-	contentType    string
-	tagName        string
-	pathPrefix     string
-	packageName    string
-	parameters     openapi3.Parameters
+	doc               *openapi3.T
+	service           *protogen.Service
+	method            *protogen.Method
+	serviceOptions    *oapiv1.ServiceOptions
+	host              string
+	contentType       string
+	tagName           string
+	pathPrefix        string
+	packageName       string
+	serviceParameters openapi3.Parameters
 }
 
 // addOperation creates an operation for a path and adds it.
@@ -349,29 +382,33 @@ func (g *Generator) addOperation(p addOperationParams) error {
 		},
 	}
 
-	if len(methodOptions.PathParameter) > 0 {
-		parameters, err := g.parseParameters(openapi3.ParameterInPath, methodPath, methodOptions.PathParameter)
-		if err != nil {
-			return err
-		}
-
-		// Check to see if the method-defined parameter already exists and
-		// error.
-		for _, p1 := range parameters {
-			for _, p2 := range p.parameters {
-				if p2.Value.Name == p1.Value.Name {
-					return fmt.Errorf(
-						"parameter '%s' is already defined in service definition",
-						p1.Value.Name,
-					)
-				}
-			}
-		}
-
-		p.parameters = append(p.parameters, parameters...)
+	methodParameters, err := g.createParameters(
+		methodPath,
+		methodOptions.PathParameter,
+		methodOptions.QueryParameter,
+		methodOptions.HeaderParameter,
+		methodOptions.CookieParameter,
+	)
+	if err != nil {
+		return err
 	}
 
-	op.Parameters = p.parameters
+	for _, methodParam := range methodParameters {
+		// For each method parameter, we'll search to see if it's already
+		// defined on the service.
+		for _, serviceParam := range p.serviceParameters {
+			if serviceParam.Value.In == methodParam.Value.In && serviceParam.Value.Name == methodParam.Value.Name {
+				return fmt.Errorf(
+					"%s %s parameter '%s' is already defined in the service definition",
+					string(p.method.Desc.FullName()),
+					methodParam.Value.In,
+					methodParam.Value.Name,
+				)
+			}
+		}
+	}
+
+	op.Parameters = append(p.serviceParameters, methodParameters...)
 
 	if methodName != http.MethodGet {
 		inputFullName := string(p.method.Input.Desc.FullName())
