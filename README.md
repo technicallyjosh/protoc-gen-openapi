@@ -162,9 +162,9 @@ service MyService {
 <details>
 <summary><h3>Service Prefixes</h3></summary>
 
-Each service can have a path prefix set for all methods to inherit. This is useful
-when versioning your API or if you have a parameter that is defined for each
-method route.
+Each service can have a path prefix set for all methods to inherit. This is
+useful when versioning your API or if you have a parameter that is defined for
+each method route.
 
 _**You can override the entire path in the method by starting the path out with
 a `/`.**_
@@ -206,9 +206,6 @@ service MyService {
 
 ## Features In Progress
 
-- Query Parameters
-- Header Parameters
-- Cookie Parameters
 - [Enum](https://json-schema.org/understanding-json-schema/reference/generic.html#enumerated-values)
   requirements on fields
 
