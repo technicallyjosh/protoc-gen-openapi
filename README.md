@@ -91,7 +91,7 @@ option (oapi.v1.file) = {
 service MyService {
   option (oapi.v1.service) = {
     prefix: "/v1"
-    display_name: "My Service"
+    x_display_name: "My Service"
   };
 
   rpc CreateSomething (CreateSomethingRequest) returns (CreateSomethingResponse) {
