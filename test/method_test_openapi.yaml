@@ -1,0 +1,58 @@
+openapi: 3.1.0
+
+info:
+  description: test description
+  title: test title
+  version: 1.1.0
+
+paths:
+  /v1/TestEmptyPost:
+    post:
+      operationId: TestService_TestEmptyPost
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties: {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties: {}
+          description: ''
+        default:
+          $ref: '#/components/responses/default'
+      servers:
+        - url: https://api.swagger.io
+      tags:
+        - TestService
+
+components:
+  responses:
+    default:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/test.api.Error'
+      description: ""
+  schemas:
+    test.api.Error:
+      properties:
+        code:
+          type: string
+        msg:
+          type: string
+
+servers:
+  - url: https://swagger.io
+  - url: https://api.swagger.io
+
+tags:
+  - name: TestService
+    x-displayName: Test Service
+
+x-tagGroups:
+  - name: Test Group
+    tags:
+      - TestService

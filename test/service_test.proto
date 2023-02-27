@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package test.api;
+
+import "oapi/v1/file.proto";
+import "oapi/v1/service.proto";
+import "oapi/v1/method.proto";
+
+option go_package = "github.com/technicallyjosh/protoc-gen-openapi/test_api";
+
+option (oapi.v1.file) = {
+  host: "swagger.io"
+  prefix: "/v1"
+};
+
+service TestService {
+  option (oapi.v1.service) = {
+    host: "api.swagger.io"
+    x_display_name: "Test Service"
+    x_tag_group: "Test Group"
+  };
+
+  rpc TestGet(TestGetRequest) returns (TestGetResponse) {
+    option (oapi.v1.method) = {
+      get: "TestGet"
+    };
+  };
+}
+
+message TestGetRequest{
+  string value = 1;
+}
+
+message TestGetResponse{
+  string value = 1;
+}
+
+message Error {
+  string code = 1;
+  string msg = 2;
+}
+

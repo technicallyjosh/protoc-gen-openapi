@@ -43,10 +43,21 @@ go install github.com/technicallyjosh/protoc-gen-openapi@latest
 
 <sup>1</sup> _Can be overridden on a file, service, or method._
 
-## Using Buf
+## Build Examples
 
-Yup, I've only actually used this in `buf` so far. I'm sure it works with the
-standard protoc calls, but why would you do that to yourself 😂?
+Below are some basic examples on how to use this generator.
+
+### Protoc
+
+```bash
+protoc \
+  --openapi_out=. \
+  --openapi_opt=version=1.0.0 \
+  --openapi_opt=title="My Awesome API" \
+  api/some_service.proto
+```
+
+### Buf
 
 **buf.yaml**
 

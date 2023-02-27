@@ -43,10 +43,10 @@ func addTagGroup(doc *openapi3.T, name, tag string) error {
 	var groups *XTagGroups
 
 	// Ensure the extension exists first.
-	foundGroups, ok := doc.ExtensionProps.Extensions[key]
+	foundGroups, ok := doc.Extensions[key]
 	if !ok {
 		groups = new(XTagGroups)
-		doc.ExtensionProps.Extensions[key] = groups
+		doc.Extensions[key] = groups
 	} else {
 		// If it's found, set the pointer
 		groups, ok = foundGroups.(*XTagGroups)

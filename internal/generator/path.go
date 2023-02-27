@@ -13,7 +13,7 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-func newServer(host string) (*openapi3.Server, error) {
+func NewServer(host string) (*openapi3.Server, error) {
 	u, err := url.Parse(host)
 	if err != nil {
 		return nil, err
@@ -62,6 +62,13 @@ func (g *Generator) addPathsToDoc(doc *openapi3.T, services []*protogen.Service)
 		if serviceOptions.Host != "" {
 			// Use service defined host.
 			host = serviceOptions.Host
+
+			server, err := NewServer(serviceOptions.Host)
+			if err != nil {
+				return err
+			}
+
+			doc.Servers = append(doc.Servers, server)
 		}
 
 		if serviceOptions.Prefix != "" {
@@ -76,16 +83,12 @@ func (g *Generator) addPathsToDoc(doc *openapi3.T, services []*protogen.Service)
 
 		serviceDescription := g.parseComments(service.Comments.Leading).Description
 
-		props := openapi3.ExtensionProps{
+		doc.Tags = append(doc.Tags, &openapi3.Tag{
+			Name:        tagName,
+			Description: serviceDescription,
 			Extensions: map[string]any{
 				"x-displayName": serviceOptions.XDisplayName,
 			},
-		}
-
-		doc.Tags = append(doc.Tags, &openapi3.Tag{
-			Name:           tagName,
-			Description:    serviceDescription,
-			ExtensionProps: props,
 		})
 
 		tagGroup := strings.TrimSpace(serviceOptions.XTagGroup)
@@ -262,7 +265,7 @@ func (g *Generator) addOperation(p addOperationParams) error {
 	}
 
 	// Append the defined host as a server. Duplicates are removed later.
-	server, err := newServer(host)
+	server, err := NewServer(host)
 	if err != nil {
 		return err
 	}
@@ -368,9 +371,7 @@ func (g *Generator) addOperation(p addOperationParams) error {
 		contentType: &openapi3.MediaType{
 			Schema: &openapi3.SchemaRef{
 				Value: &openapi3.Schema{
-					Description: "",
-					Properties:  make(openapi3.Schemas),
-					Title:       "something",
+					Properties: make(openapi3.Schemas),
 				},
 			},
 		},
@@ -378,7 +379,11 @@ func (g *Generator) addOperation(p addOperationParams) error {
 
 	responseContent := openapi3.Content{
 		contentType: &openapi3.MediaType{
-			Schema: &openapi3.SchemaRef{},
+			Schema: &openapi3.SchemaRef{
+				Value: &openapi3.Schema{
+					Properties: make(openapi3.Schemas),
+				},
+			},
 		},
 	}
 
@@ -428,6 +433,7 @@ func (g *Generator) addOperation(p addOperationParams) error {
 			if err != nil {
 				return err
 			}
+
 			requestContent.Get(contentType).Schema = requestSchemaRef
 
 			op.RequestBody = &openapi3.RequestBodyRef{

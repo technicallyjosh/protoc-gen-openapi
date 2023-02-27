@@ -3,11 +3,15 @@ package generator
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"strings"
 
 	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/stretchr/objx"
+	oapiv1 "github.com/technicallyjosh/protoc-gen-openapi/api/oapi/v1"
 	"github.com/technicallyjosh/protoc-gen-openapi/internal/generator/util"
 	"google.golang.org/protobuf/compiler/protogen"
+	"google.golang.org/protobuf/proto"
 	"gopkg.in/yaml.v3"
 )
 
@@ -78,20 +82,88 @@ func (g *Generator) Run() error {
 		}
 	}
 
-	outFile := g.plugin.NewGeneratedFile(filename, "")
-	_, err = outFile.Write(fileBuffer.Bytes())
+	fileBytes := fileBuffer.Bytes()
 
+	outFile := g.plugin.NewGeneratedFile(filename, "")
+
+	patchedBytes, err := g.patchEmptySchemas(fileBytes)
+	if err != nil {
+		return err
+	}
+
+	_, err = outFile.Write(patchedBytes)
 	return err
+}
+
+// patchEmptySchemas finds any schemas that are empty and updates them to have
+// an empty `Properties` node.
+func (g *Generator) patchEmptySchemas(fileBytes []byte) ([]byte, error) {
+	type M = map[string]any
+	data := make(M)
+
+	useJSON := *g.config.JSONOutput
+
+	var err error
+	if useJSON {
+		err = json.Unmarshal(fileBytes, &data)
+	} else {
+		err = yaml.Unmarshal(fileBytes, &data)
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	jsonBytes, err := json.Marshal(data)
+	if err != nil {
+		return nil, err
+	}
+
+	m, err := objx.FromJSON(string(jsonBytes))
+	if err != nil {
+		return nil, err
+	}
+
+	for pathKey := range m.Get("paths").ObjxMap() {
+		pathPath := "paths." + pathKey
+
+		for methodKey := range m.Get(pathPath).ObjxMap() {
+			methodPath := pathPath + "." + methodKey
+
+			schemaKey := fmt.Sprintf("%s.requestBody.content.application/json.schema", methodPath)
+			schema := m.Get(schemaKey)
+
+			if schema.IsObjxMap() && len(schema.ObjxMap()) == 0 {
+				schema.ObjxMap().Set("properties", M{})
+			}
+
+			for resKey := range m.Get(methodPath + ".responses").ObjxMap() {
+				schemaKey := fmt.Sprintf("%s.responses.%s.content.application/json.schema", methodPath, resKey)
+				schema := m.Get(schemaKey)
+				if schema.IsObjxMap() && len(schema.ObjxMap()) == 0 {
+					schema.ObjxMap().Set("properties", M{})
+				}
+			}
+		}
+	}
+
+	if useJSON {
+		return json.Marshal(m)
+	}
+
+	buffer := bytes.Buffer{}
+	encoder := yaml.NewEncoder(&buffer)
+	encoder.SetIndent(2)
+
+	err = encoder.Encode(m)
+	return buffer.Bytes(), err
 }
 
 // buildDocument builds out the base of the OAPI document with some defaults.
 func (g *Generator) buildDocument() (*openapi3.T, error) {
 	doc := &openapi3.T{
-		ExtensionProps: openapi3.ExtensionProps{
-			Extensions: make(map[string]any),
-		},
-		OpenAPI: "3.0.3",
-		Components: openapi3.Components{
+		Extensions: make(map[string]any),
+		OpenAPI:    "3.1.0",
+		Components: &openapi3.Components{
 			SecuritySchemes: make(openapi3.SecuritySchemes),
 			Schemas:         make(openapi3.Schemas),
 			RequestBodies:   make(openapi3.RequestBodies),
@@ -130,6 +202,12 @@ func (g *Generator) buildDocument() (*openapi3.T, error) {
 	}
 
 	for _, file := range files {
+		// Add servers even if there isn't a service. (File-based)
+		err = addFileServersToDoc(doc, file)
+		if err != nil {
+			return nil, err
+		}
+
 		err = g.addPathsToDoc(doc, file.Services)
 		if err != nil {
 			return nil, err
@@ -140,6 +218,23 @@ func (g *Generator) buildDocument() (*openapi3.T, error) {
 	util.UniqueTags(doc)
 
 	return doc, nil
+}
+
+func addFileServersToDoc(doc *openapi3.T, file *protogen.File) error {
+	extFile := proto.GetExtension(file.Desc.Options(), oapiv1.E_File)
+	if extFile != nil && extFile != oapiv1.E_File.InterfaceOf(oapiv1.E_File.Zero()) {
+		fileOptions := extFile.(*oapiv1.FileOptions)
+
+		if fileOptions.Host != "" {
+			server, err := NewServer(fileOptions.Host)
+			if err != nil {
+				return err
+			}
+			doc.Servers = append(doc.Servers, server)
+		}
+	}
+
+	return nil
 }
 
 func filterFiles(allFiles []*protogen.File, ignored []string) []*protogen.File {

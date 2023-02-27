@@ -1,0 +1,22 @@
+openapi: 3.1.0
+info:
+  description: test description
+  title: test title
+  version: 1.1.0
+paths: {}
+components:
+  responses:
+    default:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/test.api.Error'
+      description: ""
+  schemas:
+    test.api.Error:
+      properties:
+        code:
+          type: string
+        msg:
+          type: string
+
