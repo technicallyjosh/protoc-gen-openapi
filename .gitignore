@@ -26,4 +26,4 @@ protoc-gen-openapi
 
 .idea/
 
-test_api/openapi.yaml
+test/openapi.yaml
