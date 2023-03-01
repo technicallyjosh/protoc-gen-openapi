@@ -162,7 +162,7 @@ func (g *Generator) patchEmptySchemas(fileBytes []byte) ([]byte, error) {
 func (g *Generator) buildDocument() (*openapi3.T, error) {
 	doc := &openapi3.T{
 		Extensions: make(map[string]any),
-		OpenAPI:    "3.1.0",
+		OpenAPI:    "3.0.3",
 		Components: &openapi3.Components{
 			SecuritySchemes: make(openapi3.SecuritySchemes),
 			Schemas:         make(openapi3.Schemas),
