@@ -45,6 +45,8 @@ func (s *TestSuite) BeforeTest(suite, name string) {
 		filename = "service_test.proto"
 	case "TestMethod":
 		filename = "method_test.proto"
+	case "TestField":
+		filename = "field_test.proto"
 	default:
 		s.FailNow("invalid test name")
 	}
@@ -72,8 +74,6 @@ func (s *TestSuite) BeforeTest(suite, name string) {
 	if err != nil {
 		s.FailNow(err.Error())
 	}
-
-	fmt.Println(string(s.rawDoc))
 }
 
 func (s *TestSuite) TestBasic() {
@@ -90,6 +90,10 @@ func (s *TestSuite) TestService() {
 
 func (s *TestSuite) TestMethod() {
 	s.YAMLEq(readFile("method_test_openapi.yaml"), string(s.rawDoc))
+}
+
+func (s *TestSuite) TestField() {
+	s.YAMLEq(readFile("field_test_openapi.yaml"), string(s.rawDoc))
 }
 
 func TestMain(t *testing.T) {

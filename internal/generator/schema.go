@@ -83,7 +83,7 @@ func (g *Generator) buildSchema(doc *openapi3.T, message *protogen.Message, pare
 			fieldSchemaRef.Value.Example = example
 		}
 
-		// Try to set deprecated
+		// Deprecated option.
 		if standardOptions, ok := field.Desc.Options().(*descriptorpb.FieldOptions); ok {
 			fieldSchemaRef.Value.Deprecated = standardOptions.GetDeprecated()
 		}
@@ -172,7 +172,7 @@ func (g *Generator) buildSchema(doc *openapi3.T, message *protogen.Message, pare
 					msg := allMessages.Get(fieldMessageName)
 					if msg != nil {
 						// Use the message to build it out inline instead of using a ref.
-						err := g.buildSchema(doc, msg, fieldSchemaRef)
+						err := g.buildSchema(doc, msg, fieldSchemaRef.Value.Items)
 						if err != nil {
 							return err
 						}
@@ -223,7 +223,7 @@ func newSchemaRef(name string) string {
 func newFieldSchema(field protoreflect.FieldDescriptor) *openapi3.Schema {
 	kind := field.Kind()
 	schema := &openapi3.Schema{
-		Type:       protoKindToAPIType(field.Kind()),
+		Type:       protoKindToAPIType(kind),
 		Properties: make(openapi3.Schemas),
 	}
 
@@ -238,11 +238,14 @@ func newFieldSchema(field protoreflect.FieldDescriptor) *openapi3.Schema {
 // protoKindToAPIType returns an OAPI type based on the proto kind sent.
 func protoKindToAPIType(kind protoreflect.Kind) string {
 	switch kind {
-	case protoreflect.StringKind:
+	case protoreflect.StringKind,
+		protoreflect.Int64Kind,
+		protoreflect.Uint64Kind,
+		protoreflect.Sint64Kind:
 		return openapi3.TypeString
-	case protoreflect.Int32Kind, protoreflect.Int64Kind,
-		protoreflect.Uint32Kind, protoreflect.Uint64Kind,
-		protoreflect.Sint32Kind, protoreflect.Sint64Kind:
+	case protoreflect.Int32Kind,
+		protoreflect.Uint32Kind,
+		protoreflect.Sint32Kind:
 		return openapi3.TypeInteger
 	case protoreflect.BoolKind:
 		return openapi3.TypeBoolean

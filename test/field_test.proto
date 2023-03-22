@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+package test.api;
+
+import "oapi/v1/file.proto";
+import "oapi/v1/service.proto";
+import "oapi/v1/method.proto";
+import "oapi/v1/field.proto";
+
+option go_package = "github.com/technicallyjosh/protoc-gen-openapi/test_api";
+
+option (oapi.v1.file) = {
+  host: "swagger.io"
+  prefix: "/v1"
+};
+
+service TestService {
+  option (oapi.v1.service) = {
+    host: "api.swagger.io"
+    x_display_name: "Test Service"
+    x_tag_group: "Test Group"
+  };
+
+  rpc TestFieldTypes(TestFieldTypesRequest) returns (TestFieldTypesResponse) {
+    option (oapi.v1.method) = {
+      post: "TestFieldTypes"
+    };
+  };
+
+  rpc TestFieldExamples(TestFieldExamplesRequest) returns (TestFieldExamplesResponse) {
+    option (oapi.v1.method) = {
+      post: "TestFieldExamples"
+    };
+  }
+}
+
+message MessageRequest {
+  string string = 1;
+  string required_string = 2 [(oapi.v1.required) = true];
+}
+
+message TestFieldTypesRequest {
+  message Message {
+    string string = 1;
+  }
+
+  string string = 1;
+  bool bool = 2;
+  int32 int32 = 3;
+  int64 int64 = 4;
+  uint32 uint32 = 5;
+  uint64 uint64 = 6;
+  repeated string repeated_string = 7;
+  repeated Message repeated_message = 8;
+  repeated MessageRequest repeated_request = 9;
+}
+
+message TestFieldTypesResponse {}
+
+message TestFieldExamplesRequest {
+  // Example: test-string
+  string string = 1;
+}
+
+message TestFieldExamplesResponse {}
+
+message Error {
+  string code = 1;
+  string msg = 2;
+}
