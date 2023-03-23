@@ -124,10 +124,10 @@ func (g *Generator) patchEmptySchemas(fileBytes []byte) ([]byte, error) {
 	}
 
 	for pathKey := range m.Get("paths").ObjxMap() {
-		pathPath := "paths." + pathKey
+		pathPath := fmt.Sprintf("paths[%s]", pathKey)
 
 		for methodKey := range m.Get(pathPath).ObjxMap() {
-			methodPath := pathPath + "." + methodKey
+			methodPath := fmt.Sprintf("%s[%s]", pathPath, methodKey)
 
 			schemaKey := fmt.Sprintf("%s.requestBody.content.application/json.schema", methodPath)
 			schema := m.Get(schemaKey)
