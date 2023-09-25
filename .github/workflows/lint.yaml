@@ -1,15 +1,20 @@
 name: Lint
 
 on:
-  workflow_call: { }
-  push:
-    branches:
-      - main
+  workflow_call:
+    inputs:
+      lint_proto:
+        type: boolean
+        default: true
+      lint_go:
+        type: boolean
+        default: true
 
 jobs:
   lint_proto:
     name: Lint Proto
     runs-on: ubuntu-latest
+    if: ${{ inputs.lint_proto }}
     steps:
       - uses: actions/checkout@v3
       - uses: bufbuild/buf-setup-action@v1
@@ -24,6 +29,7 @@ jobs:
   lint_go:
     name: Lint Go
     runs-on: ubuntu-latest
+    if: ${{ inputs.lint_go }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v3
