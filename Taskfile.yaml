@@ -22,6 +22,12 @@ tasks:
       - docker run --rm -v "$(pwd):{{.wd}}" -w {{.wd}} localbuf lint
       - golangci-lint run ./...
 
+  test:
+    summary: Tests the lib end to end.
+    cmds:
+      - go install .
+      - go test -v ./...
+
   generate:
     summary: Generates Go from Protobuf.
     deps:
