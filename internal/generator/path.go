@@ -50,7 +50,6 @@ func (g *Generator) addPathsToDoc(doc *openapi3.T, services []*protogen.Service)
 
 		tagName := string(service.Desc.Name())
 		packageName := string(service.Desc.ParentFile().Package())
-
 		serviceOptions := new(oapiv1.ServiceOptions)
 
 		// Service options.
@@ -58,6 +57,8 @@ func (g *Generator) addPathsToDoc(doc *openapi3.T, services []*protogen.Service)
 		if extService != nil && extService != oapiv1.E_Service.InterfaceOf(oapiv1.E_Service.Zero()) {
 			serviceOptions = extService.(*oapiv1.ServiceOptions)
 		}
+
+		security := make([]*oapiv1.Security, 0)
 
 		if serviceOptions.Host != "" {
 			// Use service defined host.
@@ -79,6 +80,20 @@ func (g *Generator) addPathsToDoc(doc *openapi3.T, services []*protogen.Service)
 		if serviceOptions.ContentType != "" {
 			// Use service defined content type.
 			contentType = serviceOptions.ContentType
+		}
+
+		if len(serviceOptions.Security) > 0 {
+			// Use service defined security.
+			for _, s := range serviceOptions.Security {
+				// If one is empty, this is how we'll clear it on an override.
+				// e.g. security: {}
+				if s.Name == "" {
+					security = make([]*oapiv1.Security, 0)
+					break
+				}
+
+				security = append(security, s)
+			}
 		}
 
 		serviceDescription := g.parseComments(service.Comments.Leading).Description
@@ -122,6 +137,7 @@ func (g *Generator) addPathsToDoc(doc *openapi3.T, services []*protogen.Service)
 				pathPrefix:        pathPrefix,
 				packageName:       packageName,
 				serviceParameters: parameters,
+				security:          security,
 			})
 			if err != nil {
 				return err
@@ -233,6 +249,7 @@ type addOperationParams struct {
 	pathPrefix        string
 	packageName       string
 	serviceParameters openapi3.Parameters
+	security          []*oapiv1.Security
 }
 
 // addOperation creates an operation for a path and adds it.
@@ -264,6 +281,24 @@ func (g *Generator) addOperation(p addOperationParams) error {
 		contentType = methodOptions.ContentType
 	}
 
+	if len(methodOptions.Security) > 0 {
+		// Use service defined security.
+		for _, s := range methodOptions.Security {
+			// If one is empty, this is how we'll clear it on an override.
+			// e.g. security: {}
+			if s.Name == "" {
+				p.security = []*oapiv1.Security{
+					{
+						Name: "___remove",
+					},
+				}
+				break
+			}
+
+			p.security = append(p.security, s)
+		}
+	}
+
 	// Append the defined host as a server. Duplicates are removed later.
 	server, err := NewServer(host)
 	if err != nil {
@@ -282,6 +317,15 @@ func (g *Generator) addOperation(p addOperationParams) error {
 		Responses:   make(openapi3.Responses),
 		Summary:     methodOptions.Summary,
 		Parameters:  make(openapi3.Parameters, 0),
+	}
+
+	if len(p.security) > 0 {
+		op.Security = new(openapi3.SecurityRequirements)
+		for _, sec := range p.security {
+			op.Security = op.Security.With(openapi3.SecurityRequirement{
+				sec.Name: sec.Scopes,
+			})
+		}
 	}
 
 	switch m := methodOptions.Method.(type) {

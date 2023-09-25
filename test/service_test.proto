@@ -11,6 +11,20 @@ option go_package = "github.com/technicallyjosh/protoc-gen-openapi/test_api";
 option (oapi.v1.file) = {
   host: "swagger.io"
   prefix: "/v1"
+
+  security_schemes: {
+    name: "bearer_auth"
+    scheme: {
+      type: "http"
+      scheme: "bearer"
+      bearer_format: "JWT"
+    }
+  }
+
+  security: {
+    name: "bearer_auth"
+    scopes: ["scope:1", "scope:2"]
+  }
 };
 
 service TestService {
@@ -25,6 +39,13 @@ service TestService {
       get: "TestGet"
     };
   };
+
+  rpc TestPost(TestPostRequest) returns (TestPostResponse) {
+    option (oapi.v1.method) = {
+      post: "TestPost"
+      security: {}
+    };
+  }
 }
 
 message TestGetRequest{
@@ -34,6 +55,10 @@ message TestGetRequest{
 message TestGetResponse{
   string value = 1;
 }
+
+message TestPostRequest{}
+
+message TestPostResponse{}
 
 message Error {
   string code = 1;

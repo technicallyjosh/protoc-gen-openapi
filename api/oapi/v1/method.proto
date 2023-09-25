@@ -4,6 +4,7 @@ package oapi.v1;
 
 import "google/protobuf/descriptor.proto";
 import "oapi/v1/parameter.proto";
+import "oapi/v1/security.proto";
 
 option go_package = "github.com/technicallyjosh/protoc-gen-openapi/api/oapi/v1;oapiv1";
 
@@ -59,4 +60,7 @@ message MethodOptions {
 
   // Cookie parameters for the method.
   repeated Parameter cookie_parameter = 15;
+
+  // Security definition for the method.
+  repeated Security security = 16;
 }

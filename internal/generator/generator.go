@@ -91,15 +91,80 @@ func (g *Generator) Run() error {
 		return err
 	}
 
+	patchedBytes, err = g.patchRemovedSecurity(patchedBytes)
+	if err != nil {
+		return err
+	}
+
 	_, err = outFile.Write(patchedBytes)
 	return err
+}
+
+func (g *Generator) patchRemovedSecurity(fileBytes []byte) ([]byte, error) {
+	data := make(map[string]any)
+
+	useJSON := *g.config.JSONOutput
+
+	var err error
+	if useJSON {
+		err = json.Unmarshal(fileBytes, &data)
+	} else {
+		err = yaml.Unmarshal(fileBytes, &data)
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	jsonBytes, err := json.Marshal(data)
+	if err != nil {
+		return nil, err
+	}
+
+	m, err := objx.FromJSON(string(jsonBytes))
+	if err != nil {
+		return nil, err
+	}
+
+	for pathKey := range m.Get("paths").ObjxMap() {
+		pathPath := fmt.Sprintf("paths[%s]", pathKey)
+
+		for methodKey := range m.Get(pathPath).ObjxMap() {
+			methodPath := fmt.Sprintf("%s[%s]", pathPath, methodKey)
+			securityPath := fmt.Sprintf("%s.security", methodPath)
+			security := m.Get(securityPath)
+
+			if security.IsObjxMapSlice() && len(security.ObjxMapSlice()) == 1 {
+				// We need to look for single in array and with the name of
+				// "___remove"
+			outer:
+				for _, obj := range security.ObjxMapSlice() {
+					for key := range obj {
+						if key == "___remove" {
+							m.Set(securityPath, make([]string, 0))
+							break outer
+						}
+					}
+				}
+			}
+		}
+	}
+
+	if useJSON {
+		return json.Marshal(m)
+	}
+
+	buffer := bytes.Buffer{}
+	encoder := yaml.NewEncoder(&buffer)
+	encoder.SetIndent(2)
+
+	err = encoder.Encode(m)
+	return buffer.Bytes(), err
 }
 
 // patchEmptySchemas finds any schemas that are empty and updates them to have
 // an empty `Properties` node.
 func (g *Generator) patchEmptySchemas(fileBytes []byte) ([]byte, error) {
-	type M = map[string]any
-	data := make(M)
+	data := make(map[string]any)
 
 	useJSON := *g.config.JSONOutput
 
@@ -133,14 +198,14 @@ func (g *Generator) patchEmptySchemas(fileBytes []byte) ([]byte, error) {
 			schema := m.Get(schemaKey)
 
 			if schema.IsObjxMap() && len(schema.ObjxMap()) == 0 {
-				schema.ObjxMap().Set("properties", M{})
+				schema.ObjxMap().Set("properties", make(map[string]any))
 			}
 
 			for resKey := range m.Get(methodPath + ".responses").ObjxMap() {
 				schemaKey := fmt.Sprintf("%s.responses.%s.content.application/json.schema", methodPath, resKey)
 				schema := m.Get(schemaKey)
 				if schema.IsObjxMap() && len(schema.ObjxMap()) == 0 {
-					schema.ObjxMap().Set("properties", M{})
+					schema.ObjxMap().Set("properties", make(map[string]any))
 				}
 			}
 		}
@@ -208,6 +273,11 @@ func (g *Generator) buildDocument() (*openapi3.T, error) {
 			return nil, err
 		}
 
+		err = addFileSecurityToDoc(doc, file)
+		if err != nil {
+			return nil, err
+		}
+
 		err = g.addPathsToDoc(doc, file.Services)
 		if err != nil {
 			return nil, err
@@ -232,6 +302,41 @@ func addFileServersToDoc(doc *openapi3.T, file *protogen.File) error {
 			}
 			doc.Servers = append(doc.Servers, server)
 		}
+	}
+
+	return nil
+}
+
+func addFileSecurityToDoc(doc *openapi3.T, file *protogen.File) error {
+	extFile := proto.GetExtension(file.Desc.Options(), oapiv1.E_File)
+
+	if extFile != nil && extFile != oapiv1.E_File.InterfaceOf(oapiv1.E_File.Zero()) {
+		fileOptions := extFile.(*oapiv1.FileOptions)
+
+		for _, scheme := range fileOptions.SecuritySchemes {
+			doc.Components.SecuritySchemes[scheme.Name] = &openapi3.SecuritySchemeRef{
+				Value: &openapi3.SecurityScheme{
+					Type:             scheme.Scheme.Type,
+					Description:      "",
+					Name:             scheme.Scheme.Name,
+					In:               scheme.Scheme.In,
+					Scheme:           scheme.Scheme.Scheme,
+					BearerFormat:     scheme.Scheme.BearerFormat,
+					OpenIdConnectUrl: scheme.Scheme.OpenIdConnectUrl,
+					// TODO: Implement flows
+					Flows: nil,
+				},
+			}
+		}
+
+		requirements := make([]openapi3.SecurityRequirement, 0)
+		for _, sec := range fileOptions.Security {
+			requirements = append(requirements, openapi3.SecurityRequirement{
+				sec.Name: sec.Scopes,
+			})
+		}
+
+		doc.Security = requirements
 	}
 
 	return nil

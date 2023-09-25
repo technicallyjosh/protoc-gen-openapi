@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package oapi.v1;
+
+option go_package = "github.com/technicallyjosh/protoc-gen-openapi/api/oapi/v1;oapiv1";
+
+message SecurityScheme {
+  message Scheme {
+    // The type of scheme to be used. http, apiKey, oauth2, openIdConnect are
+    // valid values.
+    string type = 1;
+
+    // The scheme to use. Most commonly used is "basic" or "bearer".
+    string scheme = 2;
+
+    // Defines where the scheme is defined. This could be "header" for the apiKey
+    // type.
+    string in = 3;
+
+    // Defines the name to look for the scheme. This is used for apiKey. This
+    // could be "X-API-Key" which would represent a header name.
+    string name = 4;
+
+    // Format for documentation purposes that describes the type of bearer token.
+    // An example of this is "JWT".
+    string bearer_format = 5;
+
+    // The OIDC discovery URL.
+    string open_id_connect_url = 6;
+  }
+
+  // The name of the scheme. This is referenced in security nodes when defining
+  // access.
+  string name = 1;
+
+  // The scheme to associate with the name.
+  Scheme scheme = 2;
+}
+
+message Security {
+  // The name of the scheme to apply.
+  string name = 1;
+
+  // Scopes that are part of the definition.
+  repeated string scopes = 2;
+}

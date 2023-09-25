@@ -1,11 +1,14 @@
-package main
+package main_test
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 	"testing"
 
+	jd "github.com/josephburnett/jd/lib"
 	"github.com/stretchr/testify/suite"
+	"gopkg.in/yaml.v3"
 )
 
 type TestOptions struct {
@@ -20,6 +23,45 @@ type TestSuite struct {
 	suite.Suite
 	rawDoc  []byte
 	options TestOptions
+}
+
+func (s *TestSuite) YAMLEqual(expected any, actual any, msgAndArgs ...any) {
+	var expectedYAML, actualYAML string
+
+	switch v := expected.(type) {
+	case string:
+		expectedYAML = v
+	case []byte:
+		expectedYAML = string(v)
+	default:
+		expectedBytes, err := yaml.Marshal(v)
+		if err != nil {
+			s.FailNow(fmt.Sprintf("failed to marshal expected: %#v", v), msgAndArgs...)
+		}
+		expectedYAML = string(expectedBytes)
+	}
+
+	switch v := actual.(type) {
+	case string:
+		actualYAML = v
+	case []byte:
+		actualYAML = string(v)
+	default:
+		actualBytes, err := yaml.Marshal(v)
+		if err != nil {
+			s.FailNow(fmt.Sprintf("failed to marshal actual: %#v", v), msgAndArgs...)
+		}
+		actualYAML = string(actualBytes)
+	}
+
+	expectedNode, _ := jd.ReadYamlString(expectedYAML)
+	actualNode, _ := jd.ReadYamlString(actualYAML)
+
+	diff := expectedNode.Diff(actualNode, jd.SET).Render(jd.COLOR)
+
+	if diff != "" {
+		s.Fail(fmt.Sprintf("Not Equal:\nexpected:\n%s\nactual:\n%s\n\n%s", expectedYAML, actualYAML, diff), msgAndArgs...)
+	}
 }
 
 func (s *TestSuite) SetupSuite() {
@@ -76,26 +118,26 @@ func (s *TestSuite) BeforeTest(suite, name string) {
 }
 
 func (s *TestSuite) TestBasic() {
-	s.YAMLEq(readFile("basic_test_openapi.yaml"), string(s.rawDoc))
+	s.YAMLEqual(readFile("basic_test_openapi.yaml"), string(s.rawDoc))
 }
 
 func (s *TestSuite) TestFile() {
-	s.YAMLEq(readFile("file_test_openapi.yaml"), string(s.rawDoc))
+	s.YAMLEqual(readFile("file_test_openapi.yaml"), string(s.rawDoc))
 }
 
 func (s *TestSuite) TestService() {
-	s.YAMLEq(readFile("service_test_openapi.yaml"), string(s.rawDoc))
+	s.YAMLEqual(readFile("service_test_openapi.yaml"), string(s.rawDoc))
 }
 
 func (s *TestSuite) TestMethod() {
-	s.YAMLEq(readFile("method_test_openapi.yaml"), string(s.rawDoc))
+	s.YAMLEqual(readFile("method_test_openapi.yaml"), string(s.rawDoc))
 }
 
 func (s *TestSuite) TestField() {
-	s.YAMLEq(readFile("field_test_openapi.yaml"), string(s.rawDoc))
+	s.YAMLEqual(readFile("field_test_openapi.yaml"), string(s.rawDoc))
 }
 
-func TestMain(t *testing.T) {
+func TestSuites(t *testing.T) {
 	suite.Run(t, new(TestSuite))
 }
 

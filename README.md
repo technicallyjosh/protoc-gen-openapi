@@ -97,6 +97,21 @@ import "oapi/v1/service.proto";
 
 option (oapi.v1.file) = {
   host: "myawesomeapi.com"
+
+  security_schemes: {
+    name: "bearer_auth"
+    scheme: {
+      type: "http"
+      scheme: "bearer"
+      bearer_format: "JWT"
+    }
+  }
+
+  // Since this is at the file level, it's applied to all.
+  security: {
+    name: "bearer_auth"
+    scopes: ["read:resource"]
+  }
 };
 
 service MyService {

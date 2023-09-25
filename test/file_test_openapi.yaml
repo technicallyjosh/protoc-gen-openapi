@@ -5,7 +5,7 @@ info:
   title: test title
   version: 1.1.0
 
-paths: {}
+paths: { }
 
 servers:
   - url: https://swagger.io
@@ -17,7 +17,12 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/test.api.Error'
-      description: ""
+      description: ''
+  securitySchemes:
+    bearer_auth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
     test.api.Error:
       properties:

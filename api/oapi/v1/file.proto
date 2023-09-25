@@ -3,6 +3,7 @@ syntax = "proto3";
 package oapi.v1;
 
 import "google/protobuf/descriptor.proto";
+import "oapi/v1/security.proto";
 
 option go_package = "github.com/technicallyjosh/protoc-gen-openapi/api/oapi/v1;oapiv1";
 
@@ -18,4 +19,12 @@ message FileOptions {
   // The default prefix for all services and methods in a file. This can be
   // overridden by the service or a method definition.
   string prefix = 2;
+
+  // Security schemes defined in a file. All files will be consolidated into one
+  // list.
+  //  map<string, SecurityScheme> security_schemes = 3;
+  repeated SecurityScheme security_schemes = 3;
+
+  // Security to be used on all services and routes by default in the file.
+  repeated Security security = 4;
 }

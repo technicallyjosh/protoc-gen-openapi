@@ -24,6 +24,28 @@ paths:
         - url: https://api.swagger.io
       tags:
         - TestService
+  /v1/TestPost:
+    post:
+      operationId: TestService_TestPost
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties: { }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties: { }
+          description: ''
+        default:
+          $ref: '#/components/responses/default'
+      servers:
+        - url: https://api.swagger.io
+      tags:
+        - TestService
+      security: [ ]
 
 components:
   responses:
@@ -40,6 +62,11 @@ components:
           type: string
         msg:
           type: string
+  securitySchemes:
+    bearer_auth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
 
 servers:
   - url: https://swagger.io
@@ -53,3 +80,8 @@ x-tagGroups:
   - name: Test Group
     tags:
       - TestService
+
+security:
+  - bearer_auth:
+      - scope:1
+      - scope:2
