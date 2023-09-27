@@ -25,7 +25,10 @@ type SecurityScheme struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Name   string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// The name of the scheme. This is referenced in security nodes when defining
+	// access.
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// The scheme to associate with the name.
 	Scheme *SecurityScheme_Scheme `protobuf:"bytes,2,opt,name=scheme,proto3" json:"scheme,omitempty"`
 }
 

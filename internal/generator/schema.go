@@ -308,6 +308,14 @@ func setProperties(s *openapi3.Schema, fo *oapiv1.FieldOptions) error {
 
 	s.MultipleOf = fo.MultipleOf
 
+	if len(fo.Enum) > 0 {
+		s.Enum = make([]any, 0)
+
+		for i := range fo.Enum {
+			s.Enum = append(s.Enum, fo.Enum[i])
+		}
+	}
+
 	return nil
 }
 

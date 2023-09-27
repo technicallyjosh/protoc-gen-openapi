@@ -44,7 +44,9 @@ message TestFieldTypesRequest {
     string string = 1;
   }
 
-  string string = 1;
+  string string = 1 [(oapi.v1.options) = {
+    enum: ["test"]
+  }];
   bool bool = 2;
   int32 int32 = 3;
   int64 int64 = 4;

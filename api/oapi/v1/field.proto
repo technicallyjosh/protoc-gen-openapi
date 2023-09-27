@@ -59,4 +59,7 @@ message FieldOptions {
 
   // The number that the value must be a multiple of.
   optional double multiple_of = 13;
+
+  // Values that value must be one of.
+  repeated string enum = 14;
 }
