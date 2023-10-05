@@ -96,7 +96,7 @@ import "oapi/v1/method.proto";
 import "oapi/v1/service.proto";
 
 option (oapi.v1.file) = {
-  servers: {
+  servers {
     url: "myawesomeapi.com"
   }
 
