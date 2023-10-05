@@ -48,6 +48,25 @@ paths:
       tags:
         - TestService
       security: [ ]
+  /v1/Test2Get:
+    get:
+      operationId: Test2Service_TestGet
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  value:
+                    type: string
+          description: ''
+        default:
+          $ref: '#/components/responses/default'
+      servers:
+        - url: https://swagger.io
+        - url: https://api.added.io
+      tags:
+        - Test2Service
 
 components:
   responses:
@@ -76,11 +95,17 @@ servers:
 tags:
   - name: TestService
     x-displayName: Test Service
+  - name: Test2Service
+    x-displayName: Test 2 Service
+
 
 x-tagGroups:
   - name: Test Group
     tags:
       - TestService
+  - name: Test 2 Group
+    tags:
+      - Test2Service
 
 security:
   - bearer_auth:

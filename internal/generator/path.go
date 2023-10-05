@@ -87,6 +87,15 @@ func (g *Generator) addPathsToDoc(doc *openapi3.T, services []*protogen.Service)
 		}
 
 		if len(serviceOptions.AddServers) > 0 {
+			if len(servers) == 0 {
+				// If there are no servers defined on the service level, but we
+				// have servers being added, we need to ensure both are on each
+				// method.
+				for _, s := range doc.Servers {
+					servers = append(servers, s)
+				}
+			}
+
 			for _, addServer := range serviceOptions.AddServers {
 				server, err := NewServer(addServer.Url)
 				if err != nil {

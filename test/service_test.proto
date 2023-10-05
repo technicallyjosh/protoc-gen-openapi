@@ -55,6 +55,22 @@ service TestService {
   }
 }
 
+service Test2Service {
+  option (oapi.v1.service) = {
+    add_servers {
+      url: "api.added.io"
+    }
+    x_display_name: "Test 2 Service"
+    x_tag_group: "Test 2 Group"
+  };
+
+  rpc TestGet(TestGetRequest) returns (TestGetResponse) {
+    option (oapi.v1.method) = {
+      get: "Test2Get"
+    };
+  };
+}
+
 message TestGetRequest{
   string value = 1;
 }
