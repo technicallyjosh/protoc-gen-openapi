@@ -96,7 +96,9 @@ import "oapi/v1/method.proto";
 import "oapi/v1/service.proto";
 
 option (oapi.v1.file) = {
-  host: "myawesomeapi.com"
+  servers: {
+    url: "myawesomeapi.com"
+  }
 
   security_schemes: {
     name: "bearer_auth"
@@ -150,9 +152,9 @@ message CreateSomethingResponse {
 > the best I can.
 
 <details>
-<summary><h3>Host definitions</h3></summary>
+<summary><h3>Server definitions</h3></summary>
 
-You can define hosts at the file, service, or method level. Each one overrides
+You can define servers at the file, service, or method level. Each one overrides
 the previous. This allows for more advanced composition.
 
 **Example:**
@@ -167,17 +169,23 @@ import "oapi/v1/service.proto";
 
 
 option (oapi.v1.file) = {
-  host: "myawesomeapi.com" // file-defined for all services and methods
+  servers {
+    url: "myawesomeapi.com" // file-defined for all services and methods
+  }
 };
 
 service MyService {
   option (oapi.v1.service) = {
-    host: "myawesomeapi2.com" // overrides file-defined
+    servers {
+      url: "myawesomeapi2.com" // overrides file-defined
+    }
   };
 
   rpc CreateSomething (google.protobuf.Empty) returns (google.protobuf.Empty) {
     option (oapi.v1.method) = {
-      host: "myaweseomeapi3.com" // overrides service-defined
+      servers {
+        url: "myaweseomeapi3.com" // overrides service-defined
+      }
     };
   }
 }
@@ -206,7 +214,9 @@ import "oapi/v1/method.proto";
 import "oapi/v1/service.proto";
 
 option (oapi.v1.file) = {
-  host: "myawesomeapi.com"
+  servers {
+    url: "myawesomeapi.com"
+  }
 };
 
 service MyService {
