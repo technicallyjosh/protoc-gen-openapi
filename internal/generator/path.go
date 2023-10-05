@@ -86,6 +86,17 @@ func (g *Generator) addPathsToDoc(doc *openapi3.T, services []*protogen.Service)
 			}
 		}
 
+		if len(serviceOptions.AddServers) > 0 {
+			for _, addServer := range serviceOptions.AddServers {
+				server, err := NewServer(addServer.Url)
+				if err != nil {
+					return err
+				}
+
+				servers = append(servers, server)
+			}
+		}
+
 		if serviceOptions.Prefix != "" {
 			// Use service defined prefix.
 			pathPrefix = serviceOptions.Prefix
@@ -301,6 +312,17 @@ func (g *Generator) addOperation(p addOperationParams) error {
 		servers = openapi3.Servers{}
 		for _, methodServer := range methodOptions.Servers {
 			server, err := NewServer(methodServer.Url)
+			if err != nil {
+				return err
+			}
+
+			servers = append(servers, server)
+		}
+	}
+
+	if len(methodOptions.AddServers) > 0 {
+		for _, addServer := range methodOptions.AddServers {
+			server, err := NewServer(addServer.Url)
 			if err != nil {
 				return err
 			}

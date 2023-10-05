@@ -54,4 +54,9 @@ message ServiceOptions {
   // The servers to add to the service. These are used on all routes of the
   // service by default and overrides the file-defined ones.
   repeated Server servers = 12;
+
+  // The servers to add to the existing server list. This will combine higher
+  // level defined servers, ones defined in "servers", and the ones defined
+  // here.
+  repeated Server add_servers = 13;
 }

@@ -69,4 +69,8 @@ message MethodOptions {
   // The servers to add to the method. This overrides all servers defined above
   // for the method.
   repeated Server servers = 17;
+
+  // The servers to add to the existing server list. This will combine higher
+  // level defined servers with the ones defined here.
+  repeated Server add_servers = 18;
 }

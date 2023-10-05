@@ -30,6 +30,9 @@ service TestService {
       servers {
         url: "test.swagger.io"
       }
+      add_servers: {
+        url: "test.added.io"
+      }
     };
   };
 }

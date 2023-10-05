@@ -25,6 +25,7 @@ paths:
           $ref: '#/components/responses/default'
       servers:
         - url: https://test.swagger.io
+        - url: https://test.added.io
       tags:
         - TestService
 

@@ -22,6 +22,7 @@ paths:
           $ref: '#/components/responses/default'
       servers:
         - url: https://api.swagger.io
+        - url: https://api.added.io
       tags:
         - TestService
   /v1/TestPost:
@@ -43,6 +44,7 @@ paths:
           $ref: '#/components/responses/default'
       servers:
         - url: https://api.swagger.io
+        - url: https://api.added.io
       tags:
         - TestService
       security: [ ]

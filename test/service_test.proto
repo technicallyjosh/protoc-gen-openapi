@@ -34,6 +34,9 @@ service TestService {
     servers {
       url: "api.swagger.io"
     }
+    add_servers {
+      url: "api.added.io"
+    }
     x_display_name: "Test Service"
     x_tag_group: "Test Group"
   };
