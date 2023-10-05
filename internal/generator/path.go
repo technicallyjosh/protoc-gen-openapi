@@ -60,6 +60,8 @@ func (g *Generator) addPathsToDoc(doc *openapi3.T, services []*protogen.Service)
 
 		security := make([]*oapiv1.Security, 0)
 
+		var servers openapi3.Servers
+
 		if serviceOptions.Host != "" {
 			// Use service defined host.
 			host = serviceOptions.Host
@@ -70,6 +72,19 @@ func (g *Generator) addPathsToDoc(doc *openapi3.T, services []*protogen.Service)
 			}
 
 			doc.Servers = append(doc.Servers, server)
+			servers = append(servers, server)
+		}
+
+		if len(serviceOptions.Servers) > 0 {
+			for _, serviceServer := range serviceOptions.Servers {
+				server, err := NewServer(serviceServer.Url)
+				if err != nil {
+					return err
+				}
+
+				doc.Servers = append(doc.Servers, server)
+				servers = append(servers, server)
+			}
 		}
 
 		if serviceOptions.Prefix != "" {
@@ -138,6 +153,7 @@ func (g *Generator) addPathsToDoc(doc *openapi3.T, services []*protogen.Service)
 				packageName:       packageName,
 				serviceParameters: parameters,
 				security:          security,
+				servers:           servers,
 			})
 			if err != nil {
 				return err
@@ -244,6 +260,7 @@ type addOperationParams struct {
 	method            *protogen.Method
 	serviceOptions    *oapiv1.ServiceOptions
 	host              string
+	servers           openapi3.Servers
 	contentType       string
 	tagName           string
 	pathPrefix        string
@@ -255,7 +272,7 @@ type addOperationParams struct {
 // addOperation creates an operation for a path and adds it.
 // TODO: Break into smaller bits.
 func (g *Generator) addOperation(p addOperationParams) error {
-	host := p.host
+	servers := p.servers
 	contentType := p.contentType
 
 	operationID := string(p.service.Desc.Name() + "_" + p.method.Desc.Name())
@@ -272,8 +289,26 @@ func (g *Generator) addOperation(p addOperationParams) error {
 	}
 
 	if methodOptions.Host != "" {
-		// Use service defined host.
-		host = methodOptions.Host
+		server, err := NewServer(methodOptions.Host)
+		if err != nil {
+			return err
+		}
+		p.doc.Servers = append(p.doc.Servers, server)
+		servers = append(servers, server)
+	}
+
+	if len(methodOptions.Servers) > 0 {
+		// If defined at the method level, delete what came from service.
+		servers = openapi3.Servers{}
+		for _, methodServer := range methodOptions.Servers {
+			server, err := NewServer(methodServer.Url)
+			if err != nil {
+				return err
+			}
+
+			p.doc.Servers = append(p.doc.Servers, server)
+			servers = append(servers, server)
+		}
 	}
 
 	if methodOptions.ContentType != "" {
@@ -299,20 +334,13 @@ func (g *Generator) addOperation(p addOperationParams) error {
 		}
 	}
 
-	// Append the defined host as a server. Duplicates are removed later.
-	server, err := NewServer(host)
-	if err != nil {
-		return err
-	}
-	p.doc.Servers = append(p.doc.Servers, server)
-
 	var methodPath, methodName string
 
 	op := &openapi3.Operation{
 		Tags:        []string{p.tagName},
 		Description: description,
 		OperationID: operationID,
-		Servers:     &openapi3.Servers{server},
+		Servers:     &servers,
 		Deprecated:  methodOptions.Deprecated,
 		Responses:   make(openapi3.Responses),
 		Summary:     methodOptions.Summary,

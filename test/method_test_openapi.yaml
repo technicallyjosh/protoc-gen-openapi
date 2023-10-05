@@ -13,18 +13,18 @@ paths:
         content:
           application/json:
             schema:
-              properties: {}
+              properties: { }
       responses:
         '200':
           content:
             application/json:
               schema:
-                properties: {}
+                properties: { }
           description: ''
         default:
           $ref: '#/components/responses/default'
       servers:
-        - url: https://api.swagger.io
+        - url: https://test.swagger.io
       tags:
         - TestService
 
@@ -47,6 +47,7 @@ components:
 servers:
   - url: https://swagger.io
   - url: https://api.swagger.io
+  - url: https://test.swagger.io
 
 tags:
   - name: TestService

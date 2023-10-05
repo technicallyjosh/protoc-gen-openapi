@@ -23,6 +23,11 @@ service TestService {
   rpc TestEmptyPost(TestEmptyPostRequest) returns (TestEmptyPostResponse) {
     option (oapi.v1.method) = {
       post: "TestEmptyPost"
+      servers: [
+        {
+          url: "test.swagger.io"
+        }
+      ]
     };
   };
 }

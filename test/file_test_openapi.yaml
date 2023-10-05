@@ -9,6 +9,8 @@ paths: { }
 
 servers:
   - url: https://swagger.io
+  - url: https://swagger.one
+  - url: https://swagger.two
 
 components:
   responses:

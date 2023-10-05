@@ -302,6 +302,16 @@ func addFileServersToDoc(doc *openapi3.T, file *protogen.File) error {
 			}
 			doc.Servers = append(doc.Servers, server)
 		}
+
+		if len(fileOptions.Servers) > 0 {
+			for _, fileServer := range fileOptions.Servers {
+				server, err := NewServer(fileServer.Url)
+				if err != nil {
+					return err
+				}
+				doc.Servers = append(doc.Servers, server)
+			}
+		}
 	}
 
 	return nil
