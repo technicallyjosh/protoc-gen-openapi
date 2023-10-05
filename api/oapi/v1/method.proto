@@ -5,6 +5,7 @@ package oapi.v1;
 import "google/protobuf/descriptor.proto";
 import "oapi/v1/parameter.proto";
 import "oapi/v1/security.proto";
+import "oapi/v1/server.proto";
 
 option go_package = "github.com/technicallyjosh/protoc-gen-openapi/api/oapi/v1;oapiv1";
 
@@ -31,8 +32,9 @@ message MethodOptions {
     string patch = 5;
   }
 
-  // The host to use for the current method. This overrides any higher defined default_host value.
-  string host = 6;
+  // The host to use for the current method. This overrides any higher defined
+  // default_host value.
+  string host = 6 [deprecated = true];
 
   // Specified content type for the method.
   string content_type = 7;
@@ -63,4 +65,8 @@ message MethodOptions {
 
   // Security definition for the method.
   repeated Security security = 16;
+
+  // The servers to add to the method. This overrides all servers defined above
+  // for the method.
+  repeated Server servers = 17;
 }

@@ -5,6 +5,7 @@ package oapi.v1;
 import "google/protobuf/descriptor.proto";
 import "oapi/v1/parameter.proto";
 import "oapi/v1/security.proto";
+import "oapi/v1/server.proto";
 
 option go_package = "github.com/technicallyjosh/protoc-gen-openapi/api/oapi/v1;oapiv1";
 
@@ -15,7 +16,7 @@ extend google.protobuf.ServiceOptions {
 message ServiceOptions {
   // The default host for all methods within the service. This overrides the
   // file definition and can be overridden by a method definition.
-  string host = 1;
+  string host = 1 [deprecated = true];
 
   // This prefix is applied to each method in the service. Can be overridden by
   // a method definition.
@@ -49,4 +50,8 @@ message ServiceOptions {
 
   // Security definition for the service.
   repeated Security security = 11;
+
+  // The servers to add to the service. These are used on all routes of the
+  // service by default and overrides the file-defined ones.
+  repeated Server servers = 12;
 }

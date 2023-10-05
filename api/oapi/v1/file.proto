@@ -4,6 +4,7 @@ package oapi.v1;
 
 import "google/protobuf/descriptor.proto";
 import "oapi/v1/security.proto";
+import "oapi/v1/server.proto";
 
 option go_package = "github.com/technicallyjosh/protoc-gen-openapi/api/oapi/v1;oapiv1";
 
@@ -14,7 +15,7 @@ extend google.protobuf.FileOptions {
 message FileOptions {
   // The default host for all services and methods defined in a file. This can
   // be overridden by the service or a method definition.
-  string host = 1;
+  string host = 1 [deprecated = true];
 
   // The default prefix for all services and methods in a file. This can be
   // overridden by the service or a method definition.
@@ -22,9 +23,12 @@ message FileOptions {
 
   // Security schemes defined in a file. All files will be consolidated into one
   // list.
-  //  map<string, SecurityScheme> security_schemes = 3;
   repeated SecurityScheme security_schemes = 3;
 
   // Security to be used on all services and routes by default in the file.
   repeated Security security = 4;
+
+  // The servers to add to the global. These are used on all services and routes
+  // by default.
+  repeated Server servers = 5;
 }
