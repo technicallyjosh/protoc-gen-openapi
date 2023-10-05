@@ -82,7 +82,6 @@ func (g *Generator) addPathsToDoc(doc *openapi3.T, services []*protogen.Service)
 					return err
 				}
 
-				doc.Servers = append(doc.Servers, server)
 				servers = append(servers, server)
 			}
 		}
@@ -306,7 +305,6 @@ func (g *Generator) addOperation(p addOperationParams) error {
 				return err
 			}
 
-			p.doc.Servers = append(p.doc.Servers, server)
 			servers = append(servers, server)
 		}
 	}

@@ -9,7 +9,9 @@ import "oapi/v1/method.proto";
 option go_package = "github.com/technicallyjosh/protoc-gen-openapi/test_api";
 
 option (oapi.v1.file) = {
-  host: "swagger.io"
+  servers {
+    url: "swagger.io"
+  }
   prefix: "/v1"
 
   security_schemes: {
@@ -29,7 +31,9 @@ option (oapi.v1.file) = {
 
 service TestService {
   option (oapi.v1.service) = {
-    host: "api.swagger.io"
+    servers {
+      url: "api.swagger.io"
+    }
     x_display_name: "Test Service"
     x_tag_group: "Test Group"
   };

@@ -46,8 +46,6 @@ components:
 
 servers:
   - url: https://swagger.io
-  - url: https://api.swagger.io
-  - url: https://test.swagger.io
 
 tags:
   - name: TestService

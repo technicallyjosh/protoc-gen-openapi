@@ -9,13 +9,17 @@ import "oapi/v1/method.proto";
 option go_package = "github.com/technicallyjosh/protoc-gen-openapi/test_api";
 
 option (oapi.v1.file) = {
-  host: "swagger.io"
+  servers {
+    url: "swagger.io"
+  }
   prefix: "/v1"
 };
 
 service TestService {
   option (oapi.v1.service) = {
-    host: "api.swagger.io"
+    servers {
+      url: "api.swagger.io"
+    }
     x_display_name: "Test Service"
     x_tag_group: "Test Group"
   };
@@ -23,11 +27,9 @@ service TestService {
   rpc TestEmptyPost(TestEmptyPostRequest) returns (TestEmptyPostResponse) {
     option (oapi.v1.method) = {
       post: "TestEmptyPost"
-      servers: [
-        {
-          url: "test.swagger.io"
-        }
-      ]
+      servers {
+        url: "test.swagger.io"
+      }
     };
   };
 }
