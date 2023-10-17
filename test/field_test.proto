@@ -44,6 +44,11 @@ message TestFieldTypesRequest {
     string string = 1;
   }
 
+  enum Enum {
+    ENUM_UNSPECIFIED = 0;
+    ENUM_VALUE = 1;
+  }
+
   string string = 1 [(oapi.v1.options) = {
     enum: ["test"]
   }];
@@ -55,6 +60,8 @@ message TestFieldTypesRequest {
   repeated string repeated_string = 7;
   repeated Message repeated_message = 8;
   repeated MessageRequest repeated_request = 9;
+  Enum enum = 10;
+  repeated Enum repeated_enum = 11;
 }
 
 message TestFieldTypesResponse {}

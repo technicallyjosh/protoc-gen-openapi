@@ -200,20 +200,6 @@ func schemaExists(doc *openapi3.T, name string) bool {
 	return ok
 }
 
-// newArraySchema returns a new schema for an array of the specified kind.
-func newArraySchema(kind protoreflect.Kind) *openapi3.Schema {
-	return &openapi3.Schema{
-		Type:       openapi3.TypeArray,
-		Properties: make(openapi3.Schemas),
-		Items: &openapi3.SchemaRef{
-			Value: &openapi3.Schema{
-				Type:       protoKindToAPIType(kind),
-				Properties: make(openapi3.Schemas),
-			},
-		},
-	}
-}
-
 // newSchemaRef returns a convenient schema reference.
 func newSchemaRef(name string) string {
 	return "#/components/schemas/" + name
@@ -222,17 +208,31 @@ func newSchemaRef(name string) string {
 // newFieldSchema returns a new OAPI represented schema for protobuf types on fields.
 func newFieldSchema(field protoreflect.FieldDescriptor) *openapi3.Schema {
 	kind := field.Kind()
-	schema := &openapi3.Schema{
+	fieldSchema := &openapi3.Schema{
 		Type:       protoKindToAPIType(kind),
 		Properties: make(openapi3.Schemas),
 	}
 
-	if field.IsList() {
-		schema.Type = openapi3.TypeArray
-		return newArraySchema(kind)
+	if enum := field.Enum(); enum != nil {
+		fieldSchema.Enum = make([]any, enum.Values().Len())
+		for i := 0; i < enum.Values().Len(); i++ {
+			fieldSchema.Enum[i] = enum.Values().Get(i).Name()
+		}
 	}
 
-	return schema
+	if field.IsList() {
+		// wrap the field schema in an OAPI array type
+		itemSchema := fieldSchema
+		fieldSchema = &openapi3.Schema{
+			Type:       openapi3.TypeArray,
+			Properties: make(openapi3.Schemas),
+			Items: &openapi3.SchemaRef{
+				Value: itemSchema,
+			},
+		}
+	}
+
+	return fieldSchema
 }
 
 // protoKindToAPIType returns an OAPI type based on the proto kind sent.
@@ -251,6 +251,8 @@ func protoKindToAPIType(kind protoreflect.Kind) string {
 		return openapi3.TypeBoolean
 	case protoreflect.MessageKind:
 		return openapi3.TypeObject
+	case protoreflect.EnumKind:
+		return openapi3.TypeString
 	default:
 		return openapi3.TypeNumber
 	}
