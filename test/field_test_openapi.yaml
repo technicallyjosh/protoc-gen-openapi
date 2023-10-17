@@ -28,6 +28,18 @@ paths:
                   type: integer
                 uint64:
                   type: string
+                enum:
+                  type: string
+                  enum:
+                    - ENUM_UNSPECIFIED
+                    - ENUM_VALUE
+                repeated_enum:
+                  type: array
+                  items:
+                    type: string
+                    enum:
+                      - ENUM_UNSPECIFIED
+                      - ENUM_VALUE
                 repeated_string:
                   items:
                     type: string
