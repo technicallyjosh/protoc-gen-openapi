@@ -48,8 +48,14 @@ paths:
                         type: string
                       required_string:
                         type: string
+                      required_string2:
+                        type: string
                     required:
                       - required_string
+                      - required_string2
+                message_at:
+                  type: string
+                  format: date-time
 
       responses:
         "200":

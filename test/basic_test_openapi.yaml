@@ -3,7 +3,7 @@ info:
   description: test description
   title: test title
   version: 1.1.0
-paths: {}
+paths: { }
 components:
   responses:
     default:
@@ -19,4 +19,3 @@ components:
           type: string
         msg:
           type: string
-

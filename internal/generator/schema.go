@@ -268,7 +268,7 @@ func (g *Generator) getPackageSchema(pkg, name string) string {
 	return path.Join(prefix, pkg+"."+name)
 }
 
-func setProperties(s *openapi3.Schema, fo *oapiv1.FieldOptions) error {
+func setProperties(s *openapi3.Schema, fo *oapiv1.FieldOptions, requiredFn func()) error {
 	s.Min = fo.Min
 	s.Max = fo.Max
 
@@ -316,6 +316,18 @@ func setProperties(s *openapi3.Schema, fo *oapiv1.FieldOptions) error {
 		}
 	}
 
+	if fo.Format != nil {
+		s.Format = *fo.Format
+	}
+
+	if fo.AsType != nil {
+		s.Type = *fo.AsType
+	}
+
+	if requiredFn != nil && fo.Required {
+		requiredFn()
+	}
+
 	return nil
 }
 
@@ -328,5 +340,7 @@ func (g *Generator) setSchemaProperties(s *openapi3.Schema, parent *openapi3.Sch
 
 	fo := extOptions.(*oapiv1.FieldOptions)
 
-	return setProperties(s, fo)
+	return setProperties(s, fo, func() {
+		parent.Required = append(parent.Required, g.getFieldName(field))
+	})
 }

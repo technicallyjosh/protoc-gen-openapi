@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-
 	"github.com/technicallyjosh/protoc-gen-openapi/internal/generator"
 	"google.golang.org/protobuf/compiler/protogen"
 )

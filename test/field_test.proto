@@ -6,6 +6,7 @@ import "oapi/v1/file.proto";
 import "oapi/v1/service.proto";
 import "oapi/v1/method.proto";
 import "oapi/v1/field.proto";
+import "google/protobuf/timestamp.proto";
 
 option go_package = "github.com/technicallyjosh/protoc-gen-openapi/test_api";
 
@@ -37,6 +38,7 @@ service TestService {
 message MessageRequest {
   string string = 1;
   string required_string = 2 [(oapi.v1.required) = true];
+  string required_string2 = 3 [(oapi.v1.options).required = true];
 }
 
 message TestFieldTypesRequest {
@@ -55,6 +57,12 @@ message TestFieldTypesRequest {
   repeated string repeated_string = 7;
   repeated Message repeated_message = 8;
   repeated MessageRequest repeated_request = 9;
+  google.protobuf.Timestamp message_at = 10 [
+    (oapi.v1.options) = {
+      as_type: "string"
+      format: "date-time"
+    }
+  ];
 }
 
 message TestFieldTypesResponse {}

@@ -62,4 +62,15 @@ message FieldOptions {
 
   // Values that value must be one of.
   repeated string enum = 14;
+
+  // The format of the value.
+  optional string format = 15;
+
+  // Marks the field as required.
+  bool required = 16;
+
+  // Use the specified type instead of the defined type. This is useful when you
+  // are using something like google.protobuf.Timestamp and it really should be
+  // a string.
+  optional string as_type = 17;
 }

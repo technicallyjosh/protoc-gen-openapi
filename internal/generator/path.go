@@ -259,7 +259,9 @@ func (g *Generator) parseParameters(in, path string, parameters []*oapiv1.Parame
 		}
 
 		if parameter.Options != nil {
-			err := setProperties(paramRef.Value.Schema.Value, parameter.Options)
+			err := setProperties(paramRef.Value.Schema.Value, parameter.Options, func() {
+				paramRef.Value.Required = true
+			})
 			if err != nil {
 				return nil, err
 			}
