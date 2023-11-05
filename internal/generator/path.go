@@ -346,7 +346,7 @@ func (g *Generator) addOperation(p addOperationParams) error {
 	}
 
 	if len(methodOptions.Security) > 0 {
-		// Use service defined security.
+		// Use method defined security.
 		for _, s := range methodOptions.Security {
 			// If one is empty, this is how we'll clear it on an override.
 			// e.g. security: {}
@@ -379,9 +379,15 @@ func (g *Generator) addOperation(p addOperationParams) error {
 	if len(p.security) > 0 {
 		op.Security = new(openapi3.SecurityRequirements)
 		for _, sec := range p.security {
-			op.Security = op.Security.With(openapi3.SecurityRequirement{
-				sec.Name: sec.Scopes,
-			})
+			req := openapi3.SecurityRequirement{
+				sec.Name: make([]string, 0),
+			}
+
+			if len(sec.Scopes) > 0 {
+				req[sec.Name] = sec.Scopes
+			}
+
+			op.Security = op.Security.With(req)
 		}
 	}
 

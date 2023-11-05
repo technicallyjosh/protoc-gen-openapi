@@ -5,18 +5,12 @@ package test.api;
 import "oapi/v1/file.proto";
 
 option go_package = "github.com/technicallyjosh/protoc-gen-openapi/test_api";
-
 option (oapi.v1.file) = {
   host: "swagger.io"
 
   servers: [
-    {
-      url: "swagger.one"
-    },
-    {
-      url: "swagger.two"
-    }
-  ]
+    {url: "swagger.one"},
+    {url: "swagger.two"}]
 
   security_schemes: {
     name: "bearer_auth"

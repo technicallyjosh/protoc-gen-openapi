@@ -23,6 +23,8 @@ paths:
           description: ''
         default:
           $ref: '#/components/responses/default'
+      security:
+        - bearer_auth: [ ]
       servers:
         - url: https://test.swagger.io
         - url: https://test.added.io
@@ -37,6 +39,11 @@ components:
           schema:
             $ref: '#/components/schemas/test.api.Error'
       description: ""
+  securitySchemes:
+    bearer_auth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
     test.api.Error:
       properties:

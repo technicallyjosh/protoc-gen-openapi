@@ -3,15 +3,12 @@ syntax = "proto3";
 package test.api;
 
 import "oapi/v1/file.proto";
-import "oapi/v1/service.proto";
 import "oapi/v1/method.proto";
+import "oapi/v1/service.proto";
 
 option go_package = "github.com/technicallyjosh/protoc-gen-openapi/test_api";
-
 option (oapi.v1.file) = {
-  servers {
-    url: "swagger.io"
-  }
+  servers {url: "swagger.io"}
   prefix: "/v1"
 
   security_schemes: {
@@ -25,27 +22,24 @@ option (oapi.v1.file) = {
 
   security: {
     name: "bearer_auth"
-    scopes: ["scope:1", "scope:2"]
+    scopes: [
+      "scope:1",
+      "scope:2"
+    ]
   }
 };
 
 service TestService {
   option (oapi.v1.service) = {
-    servers {
-      url: "api.swagger.io"
-    }
-    add_servers {
-      url: "api.added.io"
-    }
+    servers {url: "api.swagger.io"}
+    add_servers {url: "api.added.io"}
     x_display_name: "Test Service"
     x_tag_group: "Test Group"
   };
 
   rpc TestGet(TestGetRequest) returns (TestGetResponse) {
-    option (oapi.v1.method) = {
-      get: "TestGet"
-    };
-  };
+    option (oapi.v1.method) = {get: "TestGet"};
+  }
 
   rpc TestPost(TestPostRequest) returns (TestPostResponse) {
     option (oapi.v1.method) = {
@@ -57,34 +51,29 @@ service TestService {
 
 service Test2Service {
   option (oapi.v1.service) = {
-    add_servers {
-      url: "api.added.io"
-    }
+    add_servers {url: "api.added.io"}
     x_display_name: "Test 2 Service"
     x_tag_group: "Test 2 Group"
   };
 
   rpc TestGet(TestGetRequest) returns (TestGetResponse) {
-    option (oapi.v1.method) = {
-      get: "Test2Get"
-    };
-  };
+    option (oapi.v1.method) = {get: "Test2Get"};
+  }
 }
 
-message TestGetRequest{
+message TestGetRequest {
   string value = 1;
 }
 
-message TestGetResponse{
+message TestGetResponse {
   string value = 1;
 }
 
-message TestPostRequest{}
+message TestPostRequest {}
 
-message TestPostResponse{}
+message TestPostResponse {}
 
 message Error {
   string code = 1;
   string msg = 2;
 }
-

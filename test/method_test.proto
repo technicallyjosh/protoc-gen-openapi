@@ -3,23 +3,26 @@ syntax = "proto3";
 package test.api;
 
 import "oapi/v1/file.proto";
-import "oapi/v1/service.proto";
 import "oapi/v1/method.proto";
+import "oapi/v1/service.proto";
 
 option go_package = "github.com/technicallyjosh/protoc-gen-openapi/test_api";
-
 option (oapi.v1.file) = {
-  servers {
-    url: "swagger.io"
-  }
+  servers {url: "swagger.io"}
   prefix: "/v1"
+  security_schemes: {
+    name: "bearer_auth"
+    scheme: {
+      type: "http"
+      scheme: "bearer"
+      bearer_format: "JWT"
+    }
+  }
 };
 
 service TestService {
   option (oapi.v1.service) = {
-    servers {
-      url: "api.swagger.io"
-    }
+    servers {url: "api.swagger.io"}
     x_display_name: "Test Service"
     x_tag_group: "Test Group"
   };
@@ -27,14 +30,11 @@ service TestService {
   rpc TestEmptyPost(TestEmptyPostRequest) returns (TestEmptyPostResponse) {
     option (oapi.v1.method) = {
       post: "TestEmptyPost"
-      servers {
-        url: "test.swagger.io"
-      }
-      add_servers: {
-        url: "test.added.io"
-      }
+      servers {url: "test.swagger.io"}
+      add_servers: {url: "test.added.io"}
+      security: {name: "bearer_auth"}
     };
-  };
+  }
 }
 
 message TestEmptyPostRequest {}

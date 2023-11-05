@@ -2,14 +2,13 @@ syntax = "proto3";
 
 package test.api;
 
-import "oapi/v1/file.proto";
-import "oapi/v1/service.proto";
-import "oapi/v1/method.proto";
-import "oapi/v1/field.proto";
 import "google/protobuf/timestamp.proto";
+import "oapi/v1/field.proto";
+import "oapi/v1/file.proto";
+import "oapi/v1/method.proto";
+import "oapi/v1/service.proto";
 
 option go_package = "github.com/technicallyjosh/protoc-gen-openapi/test_api";
-
 option (oapi.v1.file) = {
   host: "swagger.io"
   prefix: "/v1"
@@ -23,15 +22,11 @@ service TestService {
   };
 
   rpc TestFieldTypes(TestFieldTypesRequest) returns (TestFieldTypesResponse) {
-    option (oapi.v1.method) = {
-      post: "TestFieldTypes"
-    };
-  };
+    option (oapi.v1.method) = {post: "TestFieldTypes"};
+  }
 
   rpc TestFieldExamples(TestFieldExamplesRequest) returns (TestFieldExamplesResponse) {
-    option (oapi.v1.method) = {
-      post: "TestFieldExamples"
-    };
+    option (oapi.v1.method) = {post: "TestFieldExamples"};
   }
 }
 
@@ -57,12 +52,10 @@ message TestFieldTypesRequest {
   repeated string repeated_string = 7;
   repeated Message repeated_message = 8;
   repeated MessageRequest repeated_request = 9;
-  google.protobuf.Timestamp message_at = 10 [
-    (oapi.v1.options) = {
-      as_type: "string"
-      format: "date-time"
-    }
-  ];
+  google.protobuf.Timestamp message_at = 10 [(oapi.v1.options) = {
+    as_type: "string"
+    format: "date-time"
+  }];
 }
 
 message TestFieldTypesResponse {}
