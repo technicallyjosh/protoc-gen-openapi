@@ -20,6 +20,7 @@ type Config struct {
 	ContentType     *string
 	DefaultResponse *string
 	Description     *string
+	Filename        *string
 	Host            *string
 	Ignore          *string
 	JSONOutput      *bool
@@ -54,7 +55,7 @@ func (g *Generator) Run() error {
 		return err
 	}
 
-	filename := "openapi.yaml"
+	filename := *g.config.Filename + ".yaml"
 
 	fileBuffer := bytes.Buffer{}
 	jsonBytes, err := doc.MarshalJSON()
@@ -63,7 +64,7 @@ func (g *Generator) Run() error {
 	}
 
 	if useJSON {
-		filename = "openapi.json"
+		filename = *g.config.Filename + ".json"
 		fileBuffer.Write(jsonBytes)
 	} else {
 		// Extra hops to get JSON to YAML.
