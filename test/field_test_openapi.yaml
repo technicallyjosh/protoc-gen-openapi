@@ -69,7 +69,7 @@ paths:
       servers:
         - url: https://api.swagger.io
       tags:
-        - TestService
+        - test.api.TestService
 
   /v1/TestFieldExamples:
     post:
@@ -94,7 +94,7 @@ paths:
       servers:
         - url: https://api.swagger.io
       tags:
-        - TestService
+        - test.api.TestService
 
 components:
   responses:
@@ -117,10 +117,10 @@ servers:
   - url: https://api.swagger.io
 
 tags:
-  - name: TestService
+  - name: test.api.TestService
     x-displayName: Test Service
 
 x-tagGroups:
   - name: Test Group
     tags:
-      - TestService
+      - test.api.TestService

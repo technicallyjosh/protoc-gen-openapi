@@ -48,7 +48,7 @@ func (g *Generator) addPathsToDoc(doc *openapi3.T, services []*protogen.Service)
 			pathPrefix = fileOptions.Prefix
 		}
 
-		tagName := string(service.Desc.Name())
+		tagName := string(service.Desc.FullName())
 		packageName := string(service.Desc.ParentFile().Package())
 		serviceOptions := new(oapiv1.ServiceOptions)
 

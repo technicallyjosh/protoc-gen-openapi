@@ -24,7 +24,7 @@ paths:
         - url: https://api.swagger.io
         - url: https://api.added.io
       tags:
-        - TestService
+        - test.api.TestService
   /v1/TestPost:
     post:
       operationId: TestService_TestPost
@@ -46,7 +46,7 @@ paths:
         - url: https://api.swagger.io
         - url: https://api.added.io
       tags:
-        - TestService
+        - test.api.TestService
       security: [ ]
   /v1/Test2Get:
     get:
@@ -66,7 +66,7 @@ paths:
         - url: https://swagger.io
         - url: https://api.added.io
       tags:
-        - Test2Service
+        - test.api.Test2Service
 
 components:
   responses:
@@ -93,19 +93,19 @@ servers:
   - url: https://swagger.io
 
 tags:
-  - name: TestService
+  - name: test.api.TestService
     x-displayName: Test Service
-  - name: Test2Service
+  - name: test.api.Test2Service
     x-displayName: Test 2 Service
 
 
 x-tagGroups:
   - name: Test Group
     tags:
-      - TestService
+      - test.api.TestService
   - name: Test 2 Group
     tags:
-      - Test2Service
+      - test.api.Test2Service
 
 security:
   - bearer_auth:
