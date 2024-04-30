@@ -17,6 +17,8 @@ type TestOptions struct {
 	testProto       string
 	title           string
 	version         string
+	include         string
+	ignore          string
 }
 
 type TestSuite struct {
@@ -105,6 +107,8 @@ func (s *TestSuite) BeforeTest(suite, name string) {
 		"--openapi_opt=title="+s.options.title,
 		"--openapi_opt=description="+s.options.description,
 		"--openapi_opt=default_response="+s.options.defaultResponse,
+		"--openapi_opt=include="+s.options.include,
+		"--openapi_opt=ignore="+s.options.ignore,
 		"test/"+filename,
 	).CombinedOutput()
 	if err != nil {

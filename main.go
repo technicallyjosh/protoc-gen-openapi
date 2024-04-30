@@ -17,6 +17,7 @@ func main() {
 		Filename:        flags.String("filename", "openapi", "Name of the file generated without the extension."),
 		Host:            flags.String("host", "", "Host to be used for all routes."),
 		Ignore:          flags.String("ignore", "", "Packages to ignore."),
+		Include:         flags.String("include", "", "Packages to include. Ignore overrides this."),
 		JSONOutput:      flags.Bool("json_out", false, "Generate a JSON file instead of YAML."),
 		Title:           flags.String("title", "", "Title of the API"),
 		UseJSONNames:    flags.Bool("json_names", false, "Use JSON names instead of the proto names of fields."),

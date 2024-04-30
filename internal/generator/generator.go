@@ -23,6 +23,7 @@ type Config struct {
 	Filename        *string
 	Host            *string
 	Ignore          *string
+	Include         *string
 	JSONOutput      *bool
 	Title           *string
 	UseJSONNames    *bool
@@ -246,8 +247,22 @@ func (g *Generator) buildDocument() (*openapi3.T, error) {
 		Tags:     make(openapi3.Tags, 0),
 	}
 
+	included := strings.Split(*g.config.Include, "|")
 	ignored := strings.Split(*g.config.Ignore, "|")
-	files := filterFiles(g.plugin.Files, ignored)
+
+	files := make([]*protogen.File, 0)
+
+	if len(included) > 0 {
+		files = filterIncludedFiles(g.plugin.Files, included)
+	}
+
+	if len(ignored) > 0 {
+		if len(files) == 0 {
+			files = g.plugin.Files
+		}
+
+		files = filterIgnoredFiles(files, ignored)
+	}
 
 	for _, file := range files {
 		g.buildMessageMap(file.Messages)
@@ -353,7 +368,7 @@ func addFileSecurityToDoc(doc *openapi3.T, file *protogen.File) error {
 	return nil
 }
 
-func filterFiles(allFiles []*protogen.File, ignored []string) []*protogen.File {
+func filterIgnoredFiles(allFiles []*protogen.File, ignored []string) []*protogen.File {
 	files := make([]*protogen.File, 0)
 
 Files:
@@ -364,6 +379,27 @@ Files:
 
 		for _, ignoredPackage := range ignored {
 			if file.Proto.GetPackage() == ignoredPackage {
+				continue Files
+			}
+		}
+
+		files = append(files, file)
+	}
+
+	return files
+}
+
+func filterIncludedFiles(allFiles []*protogen.File, included []string) []*protogen.File {
+	files := make([]*protogen.File, 0)
+
+Files:
+	for _, file := range allFiles {
+		if !file.Generate {
+			continue
+		}
+
+		for _, ignoredPackage := range included {
+			if file.Proto.GetPackage() != ignoredPackage {
 				continue Files
 			}
 		}
