@@ -3,7 +3,6 @@ managed:
   enabled: true
 
 plugins:
-  - name: go
+  - plugin: buf.build/protocolbuffers/go:v1.33.0
     out: api
-    opt:
-      - paths=source_relative
+    opt: paths=source_relative
