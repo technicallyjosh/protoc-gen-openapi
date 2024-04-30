@@ -40,6 +40,7 @@ go install github.com/technicallyjosh/protoc-gen-openapi@latest
 | `json_names`       | Use the JSON names that Protobuf provides. Otherwise, proto field names are used. | false            |
 | `json_out`         | Create a JSON file instead of the default YAML.                                   | false            |
 | `host`             | The host to be used for all operations.<sup>1</sup>                               |                  |
+| `filename`         | Specify the filename to output.                                                   | openapi.yaml     |
 
 <sup>1</sup> _Can be overridden on a file, service, or method._
 
