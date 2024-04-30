@@ -1,6 +1,6 @@
-FROM golang:1.19-alpine3.16 as build
+FROM golang:1.20-alpine3.19 as build
 
-ENV CGO_ENABLED=0 
+ENV CGO_ENABLED=0
 
 RUN apk add gcc protoc protobuf-dev
 
