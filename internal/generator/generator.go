@@ -250,7 +250,7 @@ func (g *Generator) buildDocument() (*openapi3.T, error) {
 	included := strings.Split(*g.config.Include, "|")
 	ignored := strings.Split(*g.config.Ignore, "|")
 
-	files := make([]*protogen.File, 0)
+	files := g.plugin.Files
 
 	if len(included) > 0 {
 		files = filterIncludedFiles(g.plugin.Files, included)
