@@ -3,10 +3,10 @@ syntax = "proto3";
 package test.api;
 
 import "google/protobuf/timestamp.proto";
-import "v1/field.proto";
-import "v1/file.proto";
-import "v1/method.proto";
-import "v1/service.proto";
+import "technicallyjosh/oapi/v1/field.proto";
+import "technicallyjosh/oapi/v1/file.proto";
+import "technicallyjosh/oapi/v1/method.proto";
+import "technicallyjosh/oapi/v1/service.proto";
 
 option go_package = "github.com/technicallyjosh/protoc-gen-openapi/test_api";
 option (oapi.v1.file) = {
