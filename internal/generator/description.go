@@ -8,10 +8,8 @@ import (
 	"google.golang.org/protobuf/compiler/protogen"
 )
 
-var (
-	// exampleRegexp is for breaking apart a comment with an example.
-	exampleRegexp = regexp.MustCompile(`(?is)(.*)Example:(.*)`)
-)
+// exampleRegexp is for breaking apart a comment with an example.
+var exampleRegexp = regexp.MustCompile(`(?is)(.*)Example:(.*)`)
 
 // parsedComments holds the data parsed and extracted from a comment.
 type parsedComments struct {

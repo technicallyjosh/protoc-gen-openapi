@@ -1,5 +1,30 @@
+linters:
+  enable:
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+    # added
+    - errname
+    - gofumpt
+    - nlreturn
+    - revive
+run:
+  allow-parallel-runners: true
+  concurrency: 2
+  tests: true
+  timeout: 2m
+linters-settings:
+  revive:
+    rules:
+      - name: exported
+        disabled: true
 issues:
-  exclude-rules:
-    - linters:
-        - staticcheck
-      text: 'SA1019:'
+  exclude-use-default: false
+  exclude-dirs:
+    - vendor
+output:
+  formats:
+    - format: colored-line-number

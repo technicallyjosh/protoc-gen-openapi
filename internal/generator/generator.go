@@ -8,7 +8,7 @@ import (
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/stretchr/objx"
-	oapiv1 "github.com/technicallyjosh/protoc-gen-openapi/api/oapi/v1"
+	oapiv1 "github.com/technicallyjosh/protoc-gen-openapi/internal/gen/v1"
 	"github.com/technicallyjosh/protoc-gen-openapi/internal/generator/util"
 	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/proto"
@@ -99,6 +99,7 @@ func (g *Generator) Run() error {
 	}
 
 	_, err = outFile.Write(patchedBytes)
+
 	return err
 }
 
@@ -143,6 +144,7 @@ func (g *Generator) patchRemovedSecurity(fileBytes []byte) ([]byte, error) {
 					for key := range obj {
 						if key == "___remove" {
 							m.Set(securityPath, make([]string, 0))
+
 							break outer
 						}
 					}
@@ -160,6 +162,7 @@ func (g *Generator) patchRemovedSecurity(fileBytes []byte) ([]byte, error) {
 	encoder.SetIndent(2)
 
 	err = encoder.Encode(m)
+
 	return buffer.Bytes(), err
 }
 
@@ -222,6 +225,7 @@ func (g *Generator) patchEmptySchemas(fileBytes []byte) ([]byte, error) {
 	encoder.SetIndent(2)
 
 	err = encoder.Encode(m)
+
 	return buffer.Bytes(), err
 }
 

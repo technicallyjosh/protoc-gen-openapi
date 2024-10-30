@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/getkin/kin-openapi/openapi3"
-	oapiv1 "github.com/technicallyjosh/protoc-gen-openapi/api/oapi/v1"
+	oapiv1 "github.com/technicallyjosh/protoc-gen-openapi/internal/gen/v1"
 	"github.com/technicallyjosh/protoc-gen-openapi/internal/generator/util"
 	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/proto"
@@ -197,6 +197,7 @@ func addSchema(doc *openapi3.T, key string, value *openapi3.SchemaRef) {
 // schemaExists returns whether a schema exists or not on the doc.
 func schemaExists(doc *openapi3.T, name string) bool {
 	_, ok := doc.Components.Schemas[name]
+
 	return ok
 }
 
@@ -229,6 +230,7 @@ func newFieldSchema(field protoreflect.FieldDescriptor) *openapi3.Schema {
 
 	if field.IsList() {
 		schema.Type = openapi3.TypeArray
+
 		return newArraySchema(kind)
 	}
 

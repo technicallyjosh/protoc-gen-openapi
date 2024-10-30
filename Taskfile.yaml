@@ -1,7 +1,9 @@
 version: 3
 
 vars:
-  wd: /workspace
+  WD: /workspace
+  BUF_VERSION: 1.45
+  BUF_COMMAND: docker run --rm -v "$(pwd):{{.WD}}" -w {{.WD}} bufbuild/buf:{{.BUF_VERSION}}
 
 tasks:
   default:
@@ -12,16 +14,16 @@ tasks:
   lint:
     summary: Lints Protobuf and Go.
     cmds:
-      - docker run --rm -v "$(pwd):{{.wd}}" -w {{.wd}} bufbuild/buf:1.31 lint
+      - '{{.BUF_COMMAND}} lint'
       - golangci-lint run ./...
 
   test:
     summary: Tests the lib end to end.
     cmds:
-      - go install .
-      - go test -v ./...
+      - go install ./cmd/protoc-gen-openapi
+      - go test -v ./cmd/...
 
   generate:
     summary: Generates Go from Protobuf.
     cmds:
-      - docker run --rm -v "$(pwd):/{{.wd}}" -w {{.wd}} bufbuild/buf:1.31 generate
+      - docker run --rm -v "$(pwd):{{.WD}}" -w {{.WD}} bufbuild/buf:{{.BUF_VERSION}} generate

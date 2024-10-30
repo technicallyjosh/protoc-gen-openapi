@@ -5,11 +5,9 @@ import (
 	"google.golang.org/protobuf/compiler/protogen"
 )
 
-var (
-	// allMessages holds all messages with their full paths for reference whenever we need to look
-	// for a message to build out.
-	allMessages = make(messageMap)
-)
+// allMessages holds all messages with their full paths for reference whenever we need to look
+// for a message to build out.
+var allMessages = make(messageMap)
 
 type messageMap map[string]*protogen.Message
 
