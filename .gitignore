@@ -21,9 +21,6 @@
 # Go workspace file
 go.work
 
-# executable
-protoc-gen-openapi
-
 .idea/
 
 test/openapi.yaml
