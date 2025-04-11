@@ -81,4 +81,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Rollback
         if: failure()
-        run: git push --delete origin ${{ steps.version.outputs.version_tag }}
+        run: git push --delete origin ${{ steps.version.outputs.next_version }}
