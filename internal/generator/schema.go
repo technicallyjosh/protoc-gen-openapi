@@ -2,17 +2,17 @@ package generator
 
 import (
 	"encoding/json"
-	"fmt"
 	"path"
 	"strings"
 
 	"github.com/getkin/kin-openapi/openapi3"
-	oapiv1 "github.com/technicallyjosh/protoc-gen-openapi/api/oapi/v1"
-	"github.com/technicallyjosh/protoc-gen-openapi/internal/generator/util"
 	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/types/descriptorpb"
+
+	oapiv1 "github.com/technicallyjosh/protoc-gen-openapi/api/oapi/v1"
+	"github.com/technicallyjosh/protoc-gen-openapi/internal/generator/util"
 )
 
 // addSchemasToDoc adds all non "request" and "response" messages as schemas to the OAPI doc.
@@ -139,8 +139,6 @@ func (g *Generator) buildSchema(doc *openapi3.T, message *protogen.Message, pare
 						if err != nil {
 							return err
 						}
-					} else {
-						return fmt.Errorf("'%s' references '%s' but it seems to be missing", field.Desc.FullName(), fieldMessageName)
 					}
 				}
 			}
@@ -176,8 +174,6 @@ func (g *Generator) buildSchema(doc *openapi3.T, message *protogen.Message, pare
 						if err != nil {
 							return err
 						}
-					} else {
-						return fmt.Errorf("'%s' references '%s' but it seems to be missing", field.Desc.FullName(), fieldMessageName)
 					}
 				}
 			}
