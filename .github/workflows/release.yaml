@@ -72,11 +72,11 @@ jobs:
         uses: rickstaa/action-create-tag@v1
         with:
           tag: ${{ steps.version.outputs.next_version }}
-      - uses: goreleaser/goreleaser-action@v4
+      - uses: goreleaser/goreleaser-action@v6
         with:
           distribution: goreleaser
           version: latest
-          args: release --rm-dist
+          args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Rollback
