@@ -76,7 +76,7 @@ func (s *TestSuite) SetupSuite() {
 	}
 }
 
-func (s *TestSuite) BeforeTest(suite, name string) {
+func (s *TestSuite) BeforeTest(_, name string) {
 	var filename string
 
 	switch name {
@@ -112,7 +112,7 @@ func (s *TestSuite) BeforeTest(suite, name string) {
 		"test/"+filename,
 	).CombinedOutput()
 	if err != nil {
-		s.FailNow(string(out))
+		s.FailNow(string(out) + "\n" + err.Error())
 	}
 
 	s.rawDoc, err = os.ReadFile("test/openapi.yaml")
