@@ -1,13 +1,13 @@
 module github.com/technicallyjosh/protoc-gen-openapi
 
-go 1.20
+go 1.24
 
 require (
 	github.com/getkin/kin-openapi v0.120.0
 	github.com/josephburnett/jd v1.7.1
 	github.com/stretchr/objx v0.5.1
 	github.com/stretchr/testify v1.8.4
-	google.golang.org/protobuf v1.33.0
+	google.golang.org/protobuf v1.36.6
 	gopkg.in/yaml.v3 v3.0.1
 )
 
