@@ -4,6 +4,7 @@ import (
 	"flag"
 
 	"google.golang.org/protobuf/compiler/protogen"
+	"google.golang.org/protobuf/types/descriptorpb"
 	"google.golang.org/protobuf/types/pluginpb"
 
 	"github.com/technicallyjosh/protoc-gen-openapi/internal/generator"
@@ -32,6 +33,9 @@ func main() {
 
 	opts.Run(func(plugin *protogen.Plugin) error {
 		plugin.SupportedFeatures = uint64(pluginpb.CodeGeneratorResponse_FEATURE_PROTO3_OPTIONAL) | uint64(pluginpb.CodeGeneratorResponse_FEATURE_SUPPORTS_EDITIONS)
+		plugin.SupportedEditionsMinimum = descriptorpb.Edition_EDITION_PROTO2
+		plugin.SupportedEditionsMaximum = descriptorpb.Edition_EDITION_2023
+
 		return generator.New(plugin, conf).Run()
 	})
 }
