@@ -8,11 +8,12 @@ import (
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/stretchr/objx"
-	oapiv1 "github.com/technicallyjosh/protoc-gen-openapi/api/oapi/v1"
-	"github.com/technicallyjosh/protoc-gen-openapi/internal/generator/util"
 	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/proto"
 	"gopkg.in/yaml.v3"
+
+	oapiv1 "github.com/technicallyjosh/protoc-gen-openapi/api/oapi/v1"
+	"github.com/technicallyjosh/protoc-gen-openapi/internal/generator/util"
 )
 
 // Config holds the configuration for the generator.

@@ -3,8 +3,10 @@ package main
 import (
 	"flag"
 
-	"github.com/technicallyjosh/protoc-gen-openapi/internal/generator"
 	"google.golang.org/protobuf/compiler/protogen"
+	"google.golang.org/protobuf/types/pluginpb"
+
+	"github.com/technicallyjosh/protoc-gen-openapi/internal/generator"
 )
 
 func main() {
@@ -29,6 +31,7 @@ func main() {
 	}
 
 	opts.Run(func(plugin *protogen.Plugin) error {
+		plugin.SupportedFeatures = uint64(pluginpb.CodeGeneratorResponse_FEATURE_PROTO3_OPTIONAL) | uint64(pluginpb.CodeGeneratorResponse_FEATURE_SUPPORTS_EDITIONS)
 		return generator.New(plugin, conf).Run()
 	})
 }
