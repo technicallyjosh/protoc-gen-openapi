@@ -1,5 +1,47 @@
-issues:
-  exclude-rules:
-    - linters:
-        - staticcheck
-      text: 'SA1019:'
+# yaml-language-server: $schema=https://golangci-lint.run/jsonschema/golangci.jsonschema.json
+
+version: "2"
+run:
+  concurrency: 2
+  build-tags:
+    - integration_tests
+  tests: true
+  allow-parallel-runners: true
+output:
+  formats:
+    text:
+      path: stdout
+linters:
+  enable:
+    - errname
+    - nlreturn
+    - revive
+  settings:
+    revive:
+      rules:
+        - name: exported
+          disabled: true
+  exclusions:
+    generated: strict
+    rules:
+      - linters:
+          - staticcheck
+        text: "SA1019:"
+      - linters:
+          - staticcheck
+        text: "QF1008:"
+    paths:
+      - vendor
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gofumpt
+  exclusions:
+    generated: lax
+    paths:
+      - vendor
+      - third_party$
+      - builtin$
+      - examples$

@@ -8,9 +8,10 @@ import (
 	"strings"
 
 	"github.com/getkin/kin-openapi/openapi3"
-	oapiv1 "github.com/technicallyjosh/protoc-gen-openapi/api/oapi/v1"
 	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/proto"
+
+	oapiv1 "github.com/technicallyjosh/protoc-gen-openapi/api/oapi/v1"
 )
 
 func NewServer(host string) (*openapi3.Server, error) {
@@ -121,6 +122,7 @@ func (g *Generator) addPathsToDoc(doc *openapi3.T, services []*protogen.Service)
 				// e.g. security: {}
 				if s.Name == "" {
 					security = make([]*oapiv1.Security, 0)
+
 					break
 				}
 
@@ -356,6 +358,7 @@ func (g *Generator) addOperation(p addOperationParams) error {
 						Name: "___remove",
 					},
 				}
+
 				break
 			}
 

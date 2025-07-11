@@ -1,15 +1,14 @@
 package generator
 
 import (
-	"github.com/technicallyjosh/protoc-gen-openapi/internal/generator/util"
 	"google.golang.org/protobuf/compiler/protogen"
+
+	"github.com/technicallyjosh/protoc-gen-openapi/internal/generator/util"
 )
 
-var (
-	// allMessages holds all messages with their full paths for reference whenever we need to look
-	// for a message to build out.
-	allMessages = make(messageMap)
-)
+// allMessages holds all messages with their full paths for reference whenever we need to look
+// for a message to build out.
+var allMessages = make(messageMap)
 
 type messageMap map[string]*protogen.Message
 

@@ -147,5 +147,6 @@ func TestSuites(t *testing.T) {
 
 func readFile(name string) string {
 	data, _ := os.ReadFile("test/" + name)
+
 	return string(data)
 }

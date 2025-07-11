@@ -193,6 +193,7 @@ func addSchema(doc *openapi3.T, key string, value *openapi3.SchemaRef) {
 // schemaExists returns whether a schema exists or not on the doc.
 func schemaExists(doc *openapi3.T, name string) bool {
 	_, ok := doc.Components.Schemas[name]
+
 	return ok
 }
 
@@ -225,6 +226,7 @@ func newFieldSchema(field protoreflect.FieldDescriptor) *openapi3.Schema {
 
 	if field.IsList() {
 		schema.Type = openapi3.TypeArray
+
 		return newArraySchema(kind)
 	}
 

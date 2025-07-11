@@ -100,6 +100,7 @@ func (g *Generator) Run() error {
 	}
 
 	_, err = outFile.Write(patchedBytes)
+
 	return err
 }
 
@@ -144,6 +145,7 @@ func (g *Generator) patchRemovedSecurity(fileBytes []byte) ([]byte, error) {
 					for key := range obj {
 						if key == "___remove" {
 							m.Set(securityPath, make([]string, 0))
+
 							break outer
 						}
 					}
@@ -161,6 +163,7 @@ func (g *Generator) patchRemovedSecurity(fileBytes []byte) ([]byte, error) {
 	encoder.SetIndent(2)
 
 	err = encoder.Encode(m)
+
 	return buffer.Bytes(), err
 }
 
@@ -223,6 +226,7 @@ func (g *Generator) patchEmptySchemas(fileBytes []byte) ([]byte, error) {
 	encoder.SetIndent(2)
 
 	err = encoder.Encode(m)
+
 	return buffer.Bytes(), err
 }
 
