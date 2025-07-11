@@ -12,7 +12,7 @@ tasks:
   lint:
     summary: Lints Protobuf and Go.
     cmds:
-      - docker run --rm -v "$(pwd):{{.wd}}" -w {{.wd}} bufbuild/buf:1.31 lint
+      - docker run --rm -v "$(pwd):{{.wd}}" -w {{.wd}} bufbuild/buf:1.55 lint
       - golangci-lint run ./...
 
   test:
@@ -24,4 +24,4 @@ tasks:
   generate:
     summary: Generates Go from Protobuf.
     cmds:
-      - docker run --rm -v "$(pwd):/{{.wd}}" -w {{.wd}} bufbuild/buf:1.31 generate
+      - docker run --rm -v "$(pwd):/{{.wd}}" -w {{.wd}} bufbuild/buf:1.55 generate
